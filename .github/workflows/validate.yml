@@ -1,0 +1,65 @@
+name: Validate Plugin
+
+on:
+  push:
+    branches:
+      - main
+      - automation/sync-trayo-plugin
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-plugin-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate plugin
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Test publication validator
+        run: node --test .github/scripts/validate-plugin.test.mjs
+
+      - name: Validate publication
+        run: node .github/scripts/validate-plugin.mjs
+
+      - name: Require version increase for plugin changes
+        if: github.ref != 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch origin main --no-tags
+          if git diff --quiet origin/main...HEAD -- .claude-plugin README.md trayo; then
+            echo "No published plugin content changed."
+            exit 0
+          fi
+
+          candidate="$(node .github/scripts/validate-plugin.mjs)"
+          published="$(
+            git show origin/main:.claude-plugin/marketplace.json \
+              | jq -er '.plugins[] | select(.name == "trayo") | .version'
+          )"
+          node - "$candidate" "$published" <<'NODE'
+          const [candidate, published] = process.argv.slice(2).map((version) =>
+            version.split('.').map((part) => Number.parseInt(part, 10)),
+          );
+          const comparison = candidate.findIndex((part, index) => part !== published[index]);
+          if (comparison === -1 || candidate[comparison] < published[comparison]) {
+            console.error(
+              `Plugin content changed without a version increase: candidate=${candidate.join('.')} published=${published.join('.')}`,
+            );
+            process.exit(1);
+          }
+          NODE

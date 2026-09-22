@@ -1,0 +1,96 @@
+name: Open Plugin Sync Pull Request
+
+on:
+  push:
+    branches:
+      - automation/sync-trayo-plugin
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: open-plugin-sync-pr
+  cancel-in-progress: false
+
+env:
+  SYNC_BRANCH: automation/sync-trayo-plugin
+
+jobs:
+  open:
+    name: Open or update sync pull request
+    if: github.repository == 'trayoai/trayo-plugin'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Read plugin metadata
+        id: metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node .github/scripts/validate-plugin.mjs)"
+          source_sha="$(
+            git log -1 --format=%B \
+              | sed -n 's/^Source: trayoai\/trayoai@\([0-9a-f]\{40\}\)$/\1/p' \
+              | head -n 1
+          )"
+          if [[ -z "$source_sha" ]]; then
+            echo "Sync commit is missing its canonical source SHA." >&2
+            exit 1
+          fi
+          {
+            echo "version=$version"
+            echo "source_sha=$source_sha"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open or update pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PLUGIN_VERSION: ${{ steps.metadata.outputs.version }}
+          SOURCE_SHA: ${{ steps.metadata.outputs.source_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          title="chore: publish Trayo plugin v${PLUGIN_VERSION}"
+          body="$(cat <<EOF
+          Automated export of the canonical plugin from \`trayoai/trayoai\`.
+
+          - Version: \`${PLUGIN_VERSION}\`
+          - Canonical source: [\`${SOURCE_SHA}\`](https://github.com/trayoai/trayoai/commit/${SOURCE_SHA})
+
+          Merge remains a human decision. After merge, the release workflow will create \`trayo--v${PLUGIN_VERSION}\` exactly once.
+          EOF
+          )"
+          head="${GITHUB_REPOSITORY_OWNER}:${SYNC_BRANCH}"
+          number="$(
+            gh api --method GET "repos/${GITHUB_REPOSITORY}/pulls" \
+              -f state=open \
+              -f head="$head" \
+              --jq '.[0].number // empty'
+          )"
+
+          if [[ -z "$number" ]]; then
+            url="$(
+              gh api --method POST "repos/${GITHUB_REPOSITORY}/pulls" \
+                -f title="$title" \
+                -f body="$body" \
+                -f head="$head" \
+                -f base=main \
+                --jq '.html_url'
+            )"
+          else
+            url="$(
+              gh api --method PATCH "repos/${GITHUB_REPOSITORY}/pulls/${number}" \
+                -f title="$title" \
+                -f body="$body" \
+                --jq '.html_url'
+            )"
+          fi
+
+          echo "Pull request: $url" >> "$GITHUB_STEP_SUMMARY"
