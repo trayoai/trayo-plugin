@@ -145,3 +145,24 @@ test('monitoring examples use a backfill run or a saved account', () => {
   const params = new URL(restExample, 'https://api.trayo.ai').searchParams;
   assert.deepEqual([...params.keys()].sort(), ['accountId', 'discoveredSince', 'expand', 'signalKeys']);
 });
+
+test('recent-movers skill explains bounded and sampled results', () => {
+  const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'recent-movers', 'SKILL.md'), 'utf8')
+    .replace(/\s+/g, ' ');
+  for (const phrase of [
+    /detectedSince/,
+    /90 days|90-day/,
+    /destination searches already return the newest moves first/i,
+    /does not recover omitted matches/i,
+    /sampled/i,
+    /retrying gives the same answer/i,
+    /promotions/i,
+    /trayo_create_signal/,
+    /trayo_run_discovery/,
+    /bounded slice/,
+    /before filtering by source/,
+    /`hasMore: false` does not prove completeness/,
+    /not a departure search/,
+  ]) assert.match(body, phrase);
+  assert.doesNotMatch(body, /get fresher rows|send it again, narrower|thorough answer to who left/i);
+});
