@@ -1,6 +1,6 @@
 # Trayo plugin
 
-Use Trayo from Claude Code, Claude Cowork, Codex, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with ten job skills: onboard a new workspace, build an account list, research an account or a person, scan for a signal, monitor accounts, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
+Use Trayo from Claude Code, Claude Cowork, Codex, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with eleven job skills: onboard a new workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, monitor accounts, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
 
 Every client connects to `https://api.trayo.ai/v1/mcp`. OAuth clients can sign in with Trayo and inherit
 their current workspace permissions. Workspace API keys from **Admin → API keys** remain supported.
@@ -68,7 +68,7 @@ The `trayo` server should be connected with 28 tools. The key is stored as sensi
 1. Open **Customize → Plugins**.
 2. Select **+ → Add marketplace → Add from repository**.
 3. Add `https://github.com/trayoai/trayo-plugin`.
-4. Install **Trayo** to add its ten job skills.
+4. Install **Trayo** to add its eleven job skills.
 5. Add a custom connector named **Trayo** with URL `https://api.trayo.ai/v1/mcp`.
 6. Choose **No sign-in**, then add the request header `x-api-key` with your workspace API key as its value.
 7. Start a new task and ask Claude to call `trayo_whoami`.
@@ -94,7 +94,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.5.11. The MCP result should show the fixed URL and `TRAYO_API_KEY` as its bearer token variable. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.5.12. The MCP result should show the fixed URL and `TRAYO_API_KEY` as its bearer token variable. Then ask Codex to call `trayo_whoami`.
 
 ## Other MCP clients
 
@@ -103,7 +103,7 @@ Add a streamable HTTP MCP server with:
 - URL: `https://api.trayo.ai/v1/mcp`
 - Header: `X-API-Key: <key>` or `Authorization: Bearer <key>`
 
-The ten job skills are included for clients that support this plugin marketplace format. Call `trayo_whoami` after setup to verify the connection and key.
+The eleven job skills are included for clients that support this plugin marketplace format. Call `trayo_whoami` after setup to verify the connection and key.
 
 ## Your key
 
@@ -112,12 +112,13 @@ The key needs the scopes listed under Notes. Keep it in the client's masked secr
 ## What you get
 
 - 28 tools, always loaded (no tool-search deferral): `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
-- Ten skills, invoked automatically when you describe the job: `/trayo:onboard-workspace`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:monitor-accounts`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
+- Eleven skills, invoked automatically when you describe the job: `/trayo:onboard-workspace`, `/trayo:find-intent-accounts`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:monitor-accounts`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
 - Every skill ends the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal, with the standing scan), re-run it on your own cadence (a REST recipe), or hand it off (a CSV or a file).
 
 ## What it does
 
 - **Configure a brand-new workspace** — `/trayo:onboard-workspace`: `trayo_get_workspace` (check it isn't already set up) → `trayo_set_workspace` → `trayo_find_companies` + `trayo_import_accounts` → `trayo_create_signal` → `trayo_run_discovery`. The API-only equivalent of what the app's own onboarding does.
+- **Find companies showing intent** — `/trayo:find-intent-accounts`: `trayo_list_signals` → `trayo_find_companies` (a pool that fits your ICP) → `trayo_import_accounts` (a test sample of 100) → `trayo_run_discovery` → `trayo_list_events` → rank the companies by how many different signals each hit, tune the ICP and the signals, then run on the rest of the pool.
 - **Build accounts from criteria** — `/trayo:build-account-list`: `trayo_find_companies` → `trayo_import_accounts` → `trayo_add_to_list`.
 - **Find, then add** — search, find and research tools save nothing, so iterate on a search until the set is right. Then add what you chose: companies with `trayo_import_accounts`, people with `trayo_add_people`. Importing an account adds no people.
 - **Resume from workspace state** — `trayo_list_accounts` returns existing accounts and their reusable ids; `trayo_list_industries` returns the exact values accepted by industry filters.
@@ -173,7 +174,7 @@ between the original preview and export.
 
 ## What it does not do
 
-Market research. Ranking accounts by signal. Outbound, CRM push and routing — anything that acts on what you found. Alerts are polling, not push: monitoring re-reads on the schedule you run it on, nothing arrives on its own, and no schedule lives inside Trayo. Between your checks, Trayo scans your accounts on its own — `trayo_whoami` reports whether your workspace is covered at all. For an output beyond a list — a CSV, a team-chat digest, a push into your CRM — the skills will help you write a script against the REST API these tools wrap.
+Market research. Outbound, CRM push and routing — anything that acts on what you found. Alerts are polling, not push: monitoring re-reads on the schedule you run it on, nothing arrives on its own, and no schedule lives inside Trayo. Between your checks, Trayo scans your accounts on its own — `trayo_whoami` reports whether your workspace is covered at all. For an output beyond a list — a CSV, a team-chat digest, a push into your CRM — the skills will help you write a script against the REST API these tools wrap.
 
 ## Notes
 

@@ -1,6 +1,6 @@
 # Trayo plugin
 
-The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, lookalikes, account research, contact enrichment, signals, discovery, and events. It includes ten skills that turn those tools into common GTM workflows.
+The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, lookalikes, account research, contact enrichment, signals, discovery, and events. It includes eleven skills that turn those tools into common GTM workflows.
 
 You need a Trayo workspace API key from **Admin → API keys**.
 
@@ -33,3 +33,7 @@ For Claude Cowork, install the plugin for its skills, then add a custom connecto
 After setup, call `trayo_whoami`; a successful response confirms the connection and key.
 
 See [the plugin guide](trayo/README.md) for complete setup steps, the available skills, required key scopes, and current limitations.
+
+## Contributing
+
+This public repository is the source of truth for the plugin. Update its skills and manifests here; no nonpublic repository is synchronized into it. Before pushing a branch, review every changed file as public material and run `node --test .github/scripts/*.test.mjs` plus `node .github/scripts/validate-plugin.mjs`. Do not include credentials, customer data, or nonpublic implementation details. Branches and pull requests in this repository are public as soon as they are pushed.
