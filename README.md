@@ -13,7 +13,7 @@ claude plugin install trayo@trayo-plugins
 
 Run `/plugin configure trayo@trayo-plugins` and enter the key in the masked field.
 
-Start a new Claude Code session, then run `/mcp`. The `trayo` server should be connected with 26 tools.
+Start a new Claude Code session, then run `/mcp`. The `trayo` server should be connected with 28 tools.
 
 If you start Claude Code with `--strict-mcp-config`, add Trayo to the file passed with
 `--mcp-config` as shown in [the plugin guide](trayo/README.md). Strict mode excludes the
