@@ -53,7 +53,7 @@ test('rejects mismatched marketplace and plugin versions', (context) => {
 
 test('rejects non-public repository and MCP endpoints', async (context) => {
   await context.test('repository', (childContext) => {
-    const root = createFixture({ repository: 'https://github.com/trayoai/trayoai' });
+    const root = createFixture({ repository: 'https://example.com/internal-plugin' });
     childContext.after(() => rmSync(root, { recursive: true, force: true }));
 
     assert.throws(() => validatePlugin(root), /public Trayo plugin repository/);
