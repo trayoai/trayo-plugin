@@ -1,0 +1,78 @@
+name: Release Plugin
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".claude-plugin/**"
+      - "README.md"
+      - "trayo/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-plugin
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release plugin
+    if: github.repository == 'trayoai/trayo-plugin' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Test publication validator
+        run: node --test .github/scripts/*.test.mjs
+
+      - name: Read plugin version
+        id: metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node .github/scripts/validate-plugin.mjs)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create idempotent GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PLUGIN_VERSION: ${{ steps.metadata.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="trayo--v${PLUGIN_VERSION}"
+          git fetch --tags --force
+
+          if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
+            tagged_commit="$(git rev-list -n 1 "$tag")"
+            if ! git diff --quiet "$tag" "$GITHUB_SHA" -- .claude-plugin README.md trayo; then
+              echo "Tag $tag already points to different plugin content at $tagged_commit." >&2
+              exit 1
+            fi
+
+            if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              echo "Release $tag already exists for the current plugin content at $tagged_commit."
+              exit 0
+            fi
+
+            gh release create "$tag" \
+              --repo "$GITHUB_REPOSITORY" \
+              --verify-tag \
+              --title "Trayo plugin ${PLUGIN_VERSION}" \
+              --generate-notes
+            exit 0
+          fi
+
+          gh release create "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Trayo plugin ${PLUGIN_VERSION}" \
+            --generate-notes
