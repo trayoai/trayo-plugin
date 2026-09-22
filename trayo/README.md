@@ -63,6 +63,36 @@ Then:
 
 The `trayo` server should be connected with 28 tools. The key is stored as sensitive plugin configuration and is never part of the plugin or conversation.
 
+### Claude Code with `--strict-mcp-config`
+
+Claude Code's strict flag loads MCP servers only from `--mcp-config`. It ignores the server bundled
+with the installed plugin, so `/plugin configure` by itself will not connect Trayo in that session.
+Add Trayo to the JSON file you pass to `--mcp-config` (or merge this entry into your existing file):
+
+```json
+{
+  "mcpServers": {
+    "trayo": {
+      "type": "http",
+      "url": "https://api.trayo.ai/v1/mcp",
+      "headers": { "X-API-Key": "${TRAYO_API_KEY}" },
+      "alwaysLoad": true,
+      "timeout": 120000
+    }
+  }
+}
+```
+
+Set `TRAYO_API_KEY` for the Claude process through your secret setup, then run
+`claude --strict-mcp-config --mcp-config /path/to/mcp.json`. The file contains only a variable
+reference, not the key. In an interactive session, check `/mcp` and call `trayo_whoami`; in a
+`-p --output-format stream-json` run, check the `system/init` event's `mcp_servers` and
+`mcp_server_errors`. Do not pass the plugin's own `.mcp.json` as this file: its
+`${user_config.api_key}` placeholder is for plugin configuration, not this variable-based
+setup. If your existing strict config lists other servers, keep them in the same file.
+For an interactive OAuth connection, omit `headers` and sign in through `/mcp` instead. If `/mcp`
+shows Trayo as disabled, re-enable it there; the strict flag does not reset a disabled-server choice.
+
 ## API-key plugin: Claude Cowork and Desktop
 
 1. Open **Customize → Plugins**.

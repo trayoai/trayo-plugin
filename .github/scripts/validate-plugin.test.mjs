@@ -166,3 +166,21 @@ test('recent-movers skill explains bounded and sampled results', () => {
   ]) assert.match(body, phrase);
   assert.doesNotMatch(body, /get fresher rows|send it again, narrower|thorough answer to who left/i);
 });
+
+test('strict Claude setup uses the public MCP endpoint and an environment variable', () => {
+  const summary = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
+  const guide = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
+  assert.match(summary, /--strict-mcp-config/);
+  assert.match(summary, /trayo\/README\.md/);
+  const section = guide.split('### Claude Code with `--strict-mcp-config`')[1]?.split('## API-key plugin: Claude Cowork')[0];
+  assert.ok(section);
+  const config = JSON.parse(section.match(/```json\s*([\s\S]*?)```/)?.[1] ?? '{}');
+  assert.deepEqual(config.mcpServers?.trayo, {
+    type: 'http',
+    url: 'https://api.trayo.ai/v1/mcp',
+    headers: { 'X-API-Key': '${TRAYO_API_KEY}' },
+    alwaysLoad: true,
+    timeout: 120000,
+  });
+  assert.match(section, /Do not pass the plugin's own `\.mcp\.json`/);
+});
