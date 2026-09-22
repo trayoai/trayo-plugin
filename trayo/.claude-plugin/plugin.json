@@ -1,7 +1,7 @@
 {
   "name": "trayo",
   "displayName": "Trayo",
-  "version": "0.5.7",
+  "version": "0.5.11",
   "description": "Find companies, lookalikes and people, research accounts and the people at them, look up contact details, define signals, run discovery, and read events with Trayo.",
   "author": { "name": "Trayo", "url": "https://trayo.ai" },
   "homepage": "https://trayo.ai",

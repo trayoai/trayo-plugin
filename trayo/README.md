@@ -61,7 +61,7 @@ Then:
 3. Start a new Claude Code session.
 4. Run `/mcp`, then ask Claude to call `trayo_whoami`.
 
-The `trayo` server should be connected with 26 tools. The key is stored as sensitive plugin configuration and is never part of the plugin or conversation.
+The `trayo` server should be connected with 28 tools. The key is stored as sensitive plugin configuration and is never part of the plugin or conversation.
 
 ## API-key plugin: Claude Cowork and Desktop
 
@@ -94,7 +94,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.5.7. The MCP result should show the fixed URL and `TRAYO_API_KEY` as its bearer token variable. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.5.11. The MCP result should show the fixed URL and `TRAYO_API_KEY` as its bearer token variable. Then ask Codex to call `trayo_whoami`.
 
 ## Other MCP clients
 
@@ -111,13 +111,15 @@ The key needs the scopes listed under Notes. Keep it in the client's masked secr
 
 ## What you get
 
-- Twenty-six tools, always loaded (no tool-search deferral): `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`.
+- 28 tools, always loaded (no tool-search deferral): `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
 - Ten skills, invoked automatically when you describe the job: `/trayo:onboard-workspace`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:monitor-accounts`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
+- Every skill ends the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal, with the standing scan), re-run it on your own cadence (a REST recipe), or hand it off (a CSV or a file).
 
 ## What it does
 
 - **Configure a brand-new workspace** — `/trayo:onboard-workspace`: `trayo_get_workspace` (check it isn't already set up) → `trayo_set_workspace` → `trayo_find_companies` + `trayo_import_accounts` → `trayo_create_signal` → `trayo_run_discovery`. The API-only equivalent of what the app's own onboarding does.
 - **Build accounts from criteria** — `/trayo:build-account-list`: `trayo_find_companies` → `trayo_import_accounts` → `trayo_add_to_list`.
+- **Find, then add** — search, find and research tools save nothing, so iterate on a search until the set is right. Then add what you chose: companies with `trayo_import_accounts`, people with `trayo_add_people`. Importing an account adds no people.
 - **Resume from workspace state** — `trayo_list_accounts` returns existing accounts and their reusable ids; `trayo_list_industries` returns the exact values accepted by industry filters.
 - **Find companies like these** — `trayo_find_lookalikes`: send `companies` and `limit`, get ranked high/medium/low matches with reusable `companyId` values. Supply an exact company ID, or resolve by LinkedIn company URL, then website, then name. Nothing is saved unless you import the results.
 - **Research an account, or a person** — `/trayo:research-account` (`trayo_research_company` + `trayo_search_stakeholders` + `trayo_list_events`) and `/trayo:research-person` (`trayo_research_person`, by professional profile or workspace person).
@@ -140,6 +142,9 @@ stakeholder and job-change searches, events, and discovery results accept
 Read `delivery` before accessing rows. For `inline`, the original result fields
 remain available. For `file`, use `preview` and `metadata` for discussion, and
 download `file.downloadUrl` in code for complete records or CSV conversion.
+When present, `notes`, `collection`, and `applied` remain unshortened at the top
+level for file and inline delivery; pages carry them inside `metadata` on the
+first page.
 The preview can omit rows and shorten fields. Never import only the preview
 when the user asked for the whole result, and never rerun a search just to
 retrieve its file. `hasMore` and `nextCursor` retain their original meaning:
@@ -155,7 +160,8 @@ stakeholders, keep `expand: "people,signals"`.
 
 The call collects up to 1,000 records and returns a preview plus
 `file.downloadUrl`. Download and process the JSON or convert to CSV in code.
-Check actual `rowCount`, `collection.stopReason` in metadata, and `hasMore`.
+Check actual `rowCount`, top-level `collection.stopReason`, and `hasMore`.
+For `delivery: "pages"`, read `metadata.collection.stopReason` on the first page.
 If a time or size limit stops the call early, use `nextCursor` with the same
 filters and remaining count, then combine and deduplicate the files in code.
 There are no export jobs or polling tools.
