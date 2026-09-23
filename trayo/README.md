@@ -61,7 +61,7 @@ Then:
 3. Start a new Claude Code session.
 4. Run `/mcp`, then ask Claude to call `trayo_whoami`.
 
-The `trayo` server should be connected with 28 tools. The key is stored as sensitive plugin configuration and is never part of the plugin or conversation.
+The `trayo` server should be connected with 29 tools. The key is stored as sensitive plugin configuration and is never part of the plugin or conversation.
 
 ### Claude Code with `--strict-mcp-config`
 
@@ -124,7 +124,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.5.12. The MCP result should show the fixed URL and `TRAYO_API_KEY` as its bearer token variable. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.5.13. The MCP result should show the fixed URL and `TRAYO_API_KEY` as its bearer token variable. Then ask Codex to call `trayo_whoami`.
 
 ## Other MCP clients
 
@@ -141,7 +141,7 @@ The key needs the scopes listed under Notes. Keep it in the client's masked secr
 
 ## What you get
 
-- 28 tools, always loaded (no tool-search deferral): `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
+- 29 tools, always loaded (no tool-search deferral): `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_update_account`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
 - Eleven skills, invoked automatically when you describe the job: `/trayo:onboard-workspace`, `/trayo:find-intent-accounts`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:monitor-accounts`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
 - Every skill ends the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal, with the standing scan), re-run it on your own cadence (a REST recipe), or hand it off (a CSV or a file).
 
