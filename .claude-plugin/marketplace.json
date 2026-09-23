@@ -7,7 +7,7 @@
       "name": "trayo",
       "source": "./trayo",
       "description": "Trayo MCP server plus the job skills: onboard a workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, monitor accounts, find stakeholders, enrich contacts, recent movers, and the core discovery loop.",
-      "version": "0.5.12"
+      "version": "0.5.13"
     }
   ]
 }

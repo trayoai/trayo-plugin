@@ -16,9 +16,21 @@ The job: take companies that fit the user's ICP, run the workspace's signals on 
 
 ## 1. Agree on the ICP
 
-1. Read `trayo_get_workspace`: `solutions` and `solutionsBrief` say what the workspace sells, and `stakeholderCriteria` often says who it sells to. When they say too little, ask the user who they sell to.
-2. Write the ICP as `trayo_find_companies` `filters`: `industries` (exact values from `trayo_list_industries`), a `headcount` band, `hq`, and `fundingStages` or `companyTypes` when they matter. Keep it filters-only. A search with a `query` returns at most 50 companies on one page, too few to sample from.
-3. Show it as "This is your ICP: …" and ask what to change, add or remove. In the same message, say what the test does once the ICP is approved: it adds 100 of these companies to the workspace, runs the signals on them (say how many) over the last 90 days, and ranks the companies by how many different signals each one hits. Search again after each change. Start only when the user approves; nothing is added before that. The companies stay in the workspace afterwards, and when `monitoring.enabled` is true, Trayo's standing scan includes them.
+1. Read `trayo_get_workspace`. `buyerProfile` is the workspace's ICP: buyer thesis, industries, `sizeBand`, `geography`. `buyerProfileSource` says how far to trust it:
+   - `saved`: the ICP the workspace saved. Start from it and present it as theirs.
+   - `partial`: the fields the user already supplied are theirs; the rest are placeholder defaults. Present the supplied ones as theirs and ask about the rest.
+   - `inferred`: nothing is saved, and every field is a generic placeholder, the same for every workspace. Do not present it as their ICP. Say no ICP has been saved yet and ask who they sell to.
+   - `unreadable`: an ICP is saved in a form this API cannot read. Say so, and ask the user to describe it or check it in the Trayo app.
+
+   `solutions` and `solutionsBrief` say what the workspace sells, and `stakeholderCriteria` often says who it sells to. Use them to fill what the profile leaves open.
+2. Write the ICP as `trayo_find_companies` `filters`: `industries` (exact values from `trayo_list_industries`), a `headcount` band (from `sizeBand` when the profile is theirs), `hq` (from `geography`), and `fundingStages` or `companyTypes` when they matter. Keep it filters-only. A search with a `query` returns at most 50 companies on one page, too few to sample from.
+3. Show the plan in four short lines, then stop:
+   - **ICP:** the filters, and whether they came from the saved profile, from the user, or from your own reading of the workspace;
+   - **Signals:** how many, and their keys;
+   - **Lookback:** 90 days;
+   - **Test size:** 100 companies, added to the workspace and ranked by how many different signals each one hits.
+
+   Ask what to change, add or remove in the ICP. Search again after each change. Start only when the user approves this plan; an answer to any other question is not approval, and nothing is added before it. The companies stay in the workspace afterwards, and when `monitoring.enabled` is true, Trayo's standing scan includes them.
 
 The approved filters are the ICP for the rest of this job. Keep them unchanged, so the scale-up searches the same companies as the test.
 
@@ -65,7 +77,7 @@ For 10,000 companies, do not run it inside one conversation: write a script agai
 
 Hand back the ranked companies: the name, how many signals each hit, and for each signal the evidence (`title`, `eventDate`) and its `url`. For a table the user will look at, add each account's `logoUrl` from `trayo_list_accounts`, which lists the most recently created accounts first. Also hand back the ICP filters and signal keys you ran, each signal's fire rate, and the run ids.
 
-By now you must have: had the user approve the ICP before adding any company; shown the test result with every signal's fire rate and waited for a go before scaling; asked before running discovery on more than 100 accounts; read every event page of every run and deduplicated by event `id`.
+By now you must have: read `buyerProfileSource` and presented only a `saved` or user-supplied ICP as the workspace's own; had the user approve the ICP, signals, lookback and test size before adding any company; shown the test result with every signal's fire rate and waited for a go before scaling; asked before running discovery on more than 100 accounts; read every event page of every run and deduplicated by event `id`.
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: `trayo_add_to_list` `{ name, members: [{ accountId, via: 'signal', eventId }] }` for the top companies. Over 200 members takes several calls: send `name` on the first one only, then the `list.id` it answers with as `listId`, or two by-name calls race and split the set across two lists with the same name. The companies and signals stay in the workspace, and when `trayo_whoami` reports `monitoring.enabled: true`, Trayo's standing scan keeps searching them. For the people at the top companies, skill `find-stakeholders`.
