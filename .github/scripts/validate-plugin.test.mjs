@@ -146,6 +146,27 @@ test('monitoring examples use a backfill run or a saved account', () => {
   assert.deepEqual([...params.keys()].sort(), ['accountId', 'discoveredSince', 'expand', 'signalKeys']);
 });
 
+test('find-intent-accounts reads the workspace ICP and holds both checkpoints', () => {
+  const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'find-intent-accounts', 'SKILL.md'), 'utf8')
+    .replace(/\s+/g, ' ');
+  for (const phrase of [
+    /`buyerProfile`/,
+    /`buyerProfileSource`/,
+    /`saved`/,
+    /`partial`/,
+    /`inferred`/,
+    /`unreadable`/,
+    /Do not present it as their ICP/,
+    /\*\*Lookback:\*\* 90 days/,
+    /\*\*Test size:\*\* 100 companies/,
+    /an answer to any other question is not approval/,
+    /waited for a go before scaling/,
+  ]) assert.match(body, phrase);
+
+  const discover = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'discover-signals', 'SKILL.md'), 'utf8');
+  assert.match(discover, /use skill `find-intent-accounts`/);
+});
+
 test('recent-movers skill explains bounded and sampled results', () => {
   const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'recent-movers', 'SKILL.md'), 'utf8')
     .replace(/\s+/g, ' ');
