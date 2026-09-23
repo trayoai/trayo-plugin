@@ -64,7 +64,7 @@ If a settled batch has more than one account and `run.error` is not null, retry 
 These recovery steps apply to every signal type, including `news`. While a run is active, keep polling it.
 
 - For `account_not_ready`, wait for the run to settle, then retry the affected account IDs.
-- For `company_not_found`, check the account identity. Use `PATCH /v1/accounts/{id}` with the correct `linkedinHandle`, or a corrected website `url` when no handle is known. This REST call requires a workspace API key with `accounts:write`. Importing the same hostname again skips the existing account and does not repair it. If you only have MCP OAuth access, ask a workspace admin for the REST repair. After the update, start a new discovery for the affected IDs.
+- For `company_not_found`, check the account identity, then call `trayo_update_account` with the account ID and the correct `linkedinHandle`, or a corrected website `url` when no handle is known. It works over OAuth and API keys alike and needs `accounts:write`; over REST, use `PATCH /v1/accounts/{id}`. Read `identity.status` in its answer: `matched` names the company discovery will search, so check it is the right one; `not_found` means the next run would block again, so try another handle or website first. Importing the same hostname again does not update the existing account. After the update, start a new discovery for the affected IDs.
 - If an identical MCP call returns the old run, wait for its five-minute deduplication window to expire.
 
 ## Scale an approved event preview
