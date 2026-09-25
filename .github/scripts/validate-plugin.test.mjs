@@ -71,8 +71,9 @@ test('rejects non-public repository and MCP endpoints', async (context) => {
 
 test('rejects private references and credential markers before release', async (context) => {
   for (const [name, contents, message] of [
-    ['repository reference', 'trayoai/example-repo', /non-plugin repository reference/],
-    ['repository lookalike', 'trayoai/trayo-plugin-extra', /non-plugin repository reference/],
+    ['repository reference', 'trayoai/example-repo', /unapproved repository reference/],
+    ['repository lookalike', 'trayoai/trayo-plugin-extra', /unapproved repository reference/],
+    ['UI repository lookalike', 'trayoai/ui-extra', /unapproved repository reference/],
     ['private key', '-----BEGIN PRIVATE KEY-----', /private key material/],
     ['GitHub token', `ghp_${'a'.repeat(30)}`, /GitHub token/],
   ]) {
@@ -85,6 +86,16 @@ test('rejects private references and credential markers before release', async (
   }
 });
 
+test('allows the public UI source and its vendoring command', (context) => {
+  const root = createFixture();
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  writeFileSync(path.join(root, 'trayo', 'README.md'), [
+    'https://github.com/trayoai/ui/blob/main/README.md',
+    'npx degit trayoai/ui/src src/trayo-ui',
+  ].join('\n'));
+  assert.equal(validatePlugin(root), '1.2.3');
+});
+
 test('rejects symlinks in published content', (context) => {
   const root = createFixture();
   context.after(() => rmSync(root, { recursive: true, force: true }));
@@ -92,16 +103,26 @@ test('rejects symlinks in published content', (context) => {
   assert.throws(() => validatePlugin(root), /must not contain symlinks/);
 });
 
-test('every checked-in job skill has a complete final handoff', () => {
+test('every checked-in skill is listed in the plugin guide', () => {
   const skillsRoot = path.join(repoRoot, 'trayo', 'skills');
   const skillNames = readdirSync(skillsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name);
-  assert.equal(skillNames.length, 11);
-
+  assert.equal(skillNames.length, 12);
   const readme = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
   for (const name of skillNames) {
     assert.ok(readme.includes(`/trayo:${name}`), `${name} is missing from the plugin guide`);
+  }
+});
+
+test('every checked-in data workflow skill has a complete final handoff', () => {
+  const skillsRoot = path.join(repoRoot, 'trayo', 'skills');
+  const skillNames = readdirSync(skillsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name !== 'build-app')
+    .map((entry) => entry.name);
+  assert.equal(skillNames.length, 11);
+
+  for (const name of skillNames) {
     const body = readFileSync(path.join(skillsRoot, name, 'SKILL.md'), 'utf8');
     const lastHeading = [...body.matchAll(/^## .*$/gm)].at(-1);
     assert.equal(lastHeading?.[0], '## Finish', `${name} has no final Finish section`);
