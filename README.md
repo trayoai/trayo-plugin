@@ -1,6 +1,8 @@
 # Trayo plugin
 
-The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, lookalikes, account research, contact enrichment, signals, discovery, and events. It includes eleven skills that turn those tools into common GTM workflows.
+The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, lookalikes, account research, contact enrichment, signals, discovery, and events. It includes twelve skills for common GTM workflows and building apps with Trayo.
+
+**Building a Trayo-powered GTM app?** Use `/trayo:build-app`. New app interfaces must use [Trayo GTM UI](https://ui.trayo.ai) as their default UI foundation. Read its [agent guide](https://ui.trayo.ai/llms.txt) before writing UI code, and honor an explicit request for another stack or design system. This is app-building guidance; the Trayo API works independently of the UI library.
 
 You need a Trayo workspace API key from **Admin → API keys**.
 

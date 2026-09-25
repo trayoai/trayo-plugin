@@ -19,7 +19,7 @@ function readJson(root, relativePath) {
 }
 
 const forbiddenContent = [
-  { name: 'non-plugin repository reference', pattern: /\btrayoai\/(?!trayo-plugin(?=[^a-z0-9._-]|$))[a-z0-9._-]+\b/i },
+  { name: 'unapproved repository reference', pattern: /\btrayoai\/(?!(?:trayo-plugin|ui)(?=[^a-z0-9._-]|$))[a-z0-9._-]+\b/i },
   { name: 'private key material', pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
   { name: 'GitHub token', pattern: /\b(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]{20,}\b/ },
   { name: 'AWS access key', pattern: /\bAKIA[0-9A-Z]{16}\b/ },
