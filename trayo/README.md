@@ -8,9 +8,9 @@ You sign in with your Trayo account in the browser the first time a Trayo tool i
 
 - **One remote MCP server.** The plugin adds a server named `trayo` at `https://api.trayo.ai/v1/mcp` (streamable HTTP over HTTPS). It runs no local code: no hooks, no scripts, and no local server process.
 - **OAuth sign-in.** The server requires OAuth 2.0 authorization. Your client opens a Trayo sign-in page in your browser, you approve access to a workspace, and the client stores and refreshes the access token. The plugin itself contains no key, token, or secret.
-- **What is sent to Trayo.** Each tool call sends its arguments to `api.trayo.ai`, for example company names, websites and professional profile URLs, search criteria, signal definitions, and the IDs of accounts, people and lists in your workspace. Write tools change your workspace (importing accounts, adding people, saving lists and signals, starting discovery), and contact lookups draw on your workspace's lookup allowance.
+- **What is sent to Trayo.** Each tool call sends its arguments to the Trayo MCP server over HTTPS, for example company names, websites and professional profile URLs, search criteria, signal definitions, and the IDs of accounts, people and lists in your workspace. Write tools change your workspace (importing accounts, adding people, saving lists and signals, starting discovery), and contact lookups draw on your workspace's lookup allowance.
 - **What comes back.** Company, people, contact, signal, and event data from your workspace and from Trayo's company and people data. A large result can come back as a preview plus a time-limited download link that the agent fetches in code when you want the complete result.
-- **Skills.** Twelve `SKILL.md` instruction files that tell the agent which Trayo tools to call and in what order. Several point the agent to Trayo's public API documentation at `https://api.trayo.ai` when you want a REST script. `/trayo:build-app` also reads the public Trayo GTM UI guide at `https://ui.trayo.ai` and, when you ask it to build an app, copies the public `trayoai/ui` source from GitHub into your project with `npx degit`.
+- **Skills.** Twelve skill instruction files that tell the agent which Trayo tools to call and in what order. Several point the agent to Trayo's public API documentation at `https://api.trayo.ai` when you want a REST script. `/trayo:build-app` also reads the public Trayo GTM UI guide at `https://ui.trayo.ai` and, when you ask it to build an app, copies the public `trayoai/ui` source from GitHub into your project with `npx degit`.
 
 ## Connect
 
@@ -35,7 +35,7 @@ Then:
 4. Ask Claude to call `trayo_whoami`.
 
 The `trayo` server should be connected with 29 tools. Claude Code connects only once to servers that share a
-URL, so if you also use Trayo as a claude.ai connector, you get one set of Trayo tools.
+URL, so if you also added Trayo as a connector in Claude, you get one set of Trayo tools.
 
 ### Claude Code with `--strict-mcp-config`
 
@@ -108,10 +108,10 @@ before custom apps are available.
 Add a streamable HTTP MCP server with URL `https://api.trayo.ai/v1/mcp` and OAuth authentication. Leave
 client ID and client secret blank; the server supports discovery and automatic client registration.
 
-A client that cannot complete a browser sign-in can send a workspace API key from **Admin → API keys**
-instead, as the header `X-API-Key: <key>` or `Authorization: Bearer <key>`. Keep the key in the client's
-masked secret field or secret store; never add it to this repository or paste it into an agent
-conversation. The key needs the scopes listed under Notes.
+A client that cannot complete a browser sign-in can use a workspace API key from **Admin → API keys**
+instead, entered in the client's own `X-API-Key` header field. Keep the key in the client's masked secret
+field or secret store; never add it to this repository or paste it into an agent conversation. The key
+needs the scopes listed under Notes.
 
 The twelve skills are included for clients that support this plugin marketplace format. Call `trayo_whoami`
 after setup to verify the connection.
@@ -130,7 +130,7 @@ the next request; removing your membership revokes access. Workspace plan and us
 
 ## Build apps with Trayo
 
-Use `/trayo:build-app` when building a GTM app, dashboard, or internal tool powered by Trayo. **New app interfaces must use [Trayo GTM UI](https://ui.trayo.ai) as their default UI foundation.** Read [its agent guide](https://ui.trayo.ai/llms.txt) before writing UI code; if unavailable, read the public [README](https://github.com/trayoai/ui/blob/main/README.md) and [AGENTS.md](https://github.com/trayoai/ui/blob/main/AGENTS.md). Honor an explicit request for another stack or design system, and preserve the established system when extending an existing app.
+Use `/trayo:build-app` when building a GTM app, dashboard, or internal tool powered by Trayo. **New app interfaces must use [Trayo GTM UI](https://ui.trayo.ai) as their default UI foundation.** Read [its agent guide](https://ui.trayo.ai/llms.txt) before writing UI code; if unavailable, read the public [README](https://github.com/trayoai/ui/blob/main/README.md) and [agent instructions](https://github.com/trayoai/ui/blob/main/AGENTS.md). Honor an explicit request for another stack or design system, and preserve the established system when extending an existing app.
 
 The skill covers source vendoring, the provided people and company components, app layout, tables, and API integration. Keep API keys in the app's backend. The UI kit provides presentation components, not API authentication or a data client; the Trayo API works independently of it.
 

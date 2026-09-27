@@ -7,5 +7,7 @@
   "homepage": "https://trayo.ai",
   "repository": "https://github.com/trayoai/trayo-plugin",
   "license": "MIT",
+  "privacyPolicyUrl": "https://www.trayo.ai/privacy-policy/",
+  "icon": "./.claude-plugin/icon.svg",
   "keywords": ["trayo", "signals", "sales", "discovery", "accounts", "find", "people", "contacts", "research"]
 }

@@ -31,6 +31,8 @@ function createFixture(overrides = {}) {
     version: overrides.pluginVersion ?? '1.2.3',
     repository: overrides.repository ?? 'https://github.com/trayoai/trayo-plugin',
     license: 'MIT',
+    privacyPolicyUrl: 'https://www.trayo.ai/privacy-policy/',
+    icon: './.claude-plugin/icon.svg',
     ...overrides.plugin,
   });
   writeJson(root, 'trayo/.mcp.json', {
@@ -41,6 +43,7 @@ function createFixture(overrides = {}) {
   writeFileSync(path.join(root, 'README.md'), '# Public plugin\n');
   writeFileSync(path.join(root, 'trayo', 'README.md'), '# Trayo\n');
   writeFileSync(path.join(root, 'trayo', 'LICENSE'), 'MIT License\n');
+  writeFileSync(path.join(root, 'trayo', '.claude-plugin', 'icon.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>\n');
 
   return root;
 }
@@ -98,6 +101,22 @@ test('requires a declared license and a LICENSE file in the plugin folder', asyn
     rmSync(path.join(root, 'trayo', 'LICENSE'));
     assert.throws(() => validatePlugin(root), /include trayo\/LICENSE/);
   });
+});
+
+test('requires an https privacy policy URL and an SVG icon inside the plugin', async (context) => {
+  for (const [name, overrides, message] of [
+    ['missing privacy policy', { plugin: { privacyPolicyUrl: undefined } }, /privacyPolicyUrl/],
+    ['http privacy policy', { plugin: { privacyPolicyUrl: 'http://www.trayo.ai/privacy-policy/' } }, /privacyPolicyUrl/],
+    ['missing icon field', { plugin: { icon: undefined } }, /icon must be an SVG file/],
+    ['missing icon file', { plugin: { icon: './.claude-plugin/missing.svg' } }, /icon must be an SVG file/],
+    ['icon outside the plugin', { plugin: { icon: '../README.md' } }, /icon must be an SVG file/],
+  ]) {
+    await context.test(name, (childContext) => {
+      const root = createFixture(overrides);
+      childContext.after(() => rmSync(root, { recursive: true, force: true }));
+      assert.throws(() => validatePlugin(root), message);
+    });
+  }
 });
 
 test('rejects private references and credential markers before release', async (context) => {
@@ -239,5 +258,16 @@ test('setup guides use OAuth sign-in and never read a key from the environment',
   for (const text of [summary, guide]) {
     assert.match(text, /sign in with your Trayo account in the browser/i);
     assert.doesNotMatch(text, /TRAYO_API_KEY|--bearer-token-env-var|user_config|\/plugin configure/);
+  }
+});
+
+test('plugin files never read a credential from the environment', () => {
+  const files = [
+    path.join('trayo', 'README.md'),
+    ...readdirSync(path.join(repoRoot, 'trayo', 'skills')).map((name) => path.join('trayo', 'skills', name, 'SKILL.md')),
+  ];
+  for (const file of files) {
+    const body = readFileSync(path.join(repoRoot, file), 'utf8');
+    assert.doesNotMatch(body, /\$\{?[A-Z][A-Z0-9_]*\}?|Authorization: Bearer|TRAYO_API_KEY/, file);
   }
 });

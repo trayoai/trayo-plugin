@@ -95,6 +95,15 @@ export function validatePlugin(root = process.cwd()) {
     typeof plugin.license === 'string' && plugin.license.length > 0 && isFile(root, 'trayo/LICENSE'),
     'Plugin must set license in plugin.json and include trayo/LICENSE.',
   );
+  invariant(
+    typeof plugin.privacyPolicyUrl === 'string' && plugin.privacyPolicyUrl.startsWith('https://'),
+    'Plugin must set privacyPolicyUrl to an https:// URL.',
+  );
+  const iconPath = typeof plugin.icon === 'string' ? path.normalize(path.join('trayo', plugin.icon)) : '';
+  invariant(
+    iconPath.startsWith(`trayo${path.sep}`) && iconPath.endsWith('.svg') && isFile(root, iconPath),
+    'Plugin icon must be an SVG file inside trayo/.',
+  );
 
   validatePublicFiles(root);
 
