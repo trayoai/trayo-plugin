@@ -1,19 +1,11 @@
 {
   "name": "trayo",
   "displayName": "Trayo",
-  "version": "0.5.14",
+  "version": "0.6.0",
   "description": "Build apps with Trayo GTM UI, find companies, lookalikes and people, research accounts and the people at them, look up contact details, define signals, run discovery, and read events with Trayo.",
   "author": { "name": "Trayo", "url": "https://trayo.ai" },
   "homepage": "https://trayo.ai",
   "repository": "https://github.com/trayoai/trayo-plugin",
-  "keywords": ["trayo", "signals", "sales", "discovery", "accounts", "find", "people", "contacts", "research"],
-  "userConfig": {
-    "api_key": {
-      "type": "string",
-      "title": "Trayo API key",
-      "description": "A workspace API key from Admin → API keys. Sent as Authorization: Bearer on every call; never included in the conversation.",
-      "sensitive": true,
-      "required": true
-    }
-  }
+  "license": "MIT",
+  "keywords": ["trayo", "signals", "sales", "discovery", "accounts", "find", "people", "contacts", "research"]
 }

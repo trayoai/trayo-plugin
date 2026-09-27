@@ -18,6 +18,14 @@ function readJson(root, relativePath) {
   }
 }
 
+function isFile(root, relativePath) {
+  try {
+    return lstatSync(path.join(root, relativePath)).isFile();
+  } catch {
+    return false;
+  }
+}
+
 const forbiddenContent = [
   { name: 'unapproved repository reference', pattern: /\btrayoai\/(?!(?:trayo-plugin|ui)(?=[^a-z0-9._-]|$))[a-z0-9._-]+\b/i },
   { name: 'private key material', pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
@@ -78,6 +86,14 @@ export function validatePlugin(root = process.cwd()) {
   invariant(
     mcp?.mcpServers?.trayo?.url === 'https://api.trayo.ai/v1/mcp',
     'Trayo MCP server must use the public production endpoint.',
+  );
+  invariant(
+    mcp.mcpServers.trayo.headers === undefined && plugin.userConfig === undefined,
+    'Trayo MCP server must sign in with OAuth, without static headers or plugin credentials.',
+  );
+  invariant(
+    typeof plugin.license === 'string' && plugin.license.length > 0 && isFile(root, 'trayo/LICENSE'),
+    'Plugin must set license in plugin.json and include trayo/LICENSE.',
   );
 
   validatePublicFiles(root);
