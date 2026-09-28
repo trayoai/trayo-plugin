@@ -1,12 +1,12 @@
 # Trayo plugin
 
-Use Trayo from Claude Code, Claude Cowork, Codex, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with twelve skills: build an app, onboard a new workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, monitor accounts, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
+Use Trayo from Claude Code, Claude Cowork, Codex, Cursor, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with twelve skills: build an app, onboard a new workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, monitor accounts, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
 
 You sign in with your Trayo account in the browser the first time a Trayo tool is used. The connection uses your own workspace permissions. There is no API key to paste, and the plugin stores no credentials.
 
 ## What the plugin runs, sends, and fetches
 
-- **One remote MCP server.** The plugin adds a server named `trayo` at `https://api.trayo.ai/v1/mcp` (streamable HTTP over HTTPS). It runs no local code: no hooks, no scripts, and no local server process.
+- **One remote MCP server.** The plugin adds a server named `trayo` at `https://api.trayo.ai/v1/mcp` (streamable HTTP over HTTPS). Claude clients read it from `.mcp.json` and Cursor from `mcp.json`; both declare the same server with no credentials. It runs no local code: no hooks, no scripts, and no local server process.
 - **OAuth sign-in.** The server requires OAuth 2.0 authorization. Your client opens a Trayo sign-in page in your browser, you approve access to a workspace, and the client stores and refreshes the access token. The plugin itself contains no key, token, or secret.
 - **What is sent to Trayo.** Each tool call sends its arguments to the Trayo MCP server over HTTPS, for example company names, websites and professional profile URLs, search criteria, signal definitions, and the IDs of accounts, people and lists in your workspace. Write tools change your workspace (importing accounts, adding people, saving lists and signals, starting discovery), and contact lookups draw on your workspace's lookup allowance.
 - **What comes back.** Company, people, contact, signal, and event data from your workspace and from Trayo's company and people data. A large result can come back as a preview plus a time-limited download link that the agent fetches in code when you want the complete result.
@@ -95,6 +95,26 @@ codex mcp get trayo --json
 ```
 
 The plugin list should show Trayo version 0.6.0. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+
+### Cursor
+
+Once Trayo is listed in the [Cursor Marketplace](https://cursor.com/marketplace), install it from
+**Customize** in Cursor. The plugin adds the Trayo MCP server and the twelve skills, and Cursor asks
+you to sign in with your Trayo account in the browser.
+
+Until then, add the server to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project) and sign in
+when Cursor asks:
+
+```json
+{
+  "mcpServers": {
+    "trayo": { "url": "https://api.trayo.ai/v1/mcp" }
+  }
+}
+```
+
+In Cursor, run a skill as `/find-stakeholders` and so on, without the `trayo:` prefix. Then ask the
+agent to call `trayo_whoami`.
 
 ### ChatGPT
 

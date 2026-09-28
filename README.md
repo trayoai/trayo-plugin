@@ -32,6 +32,21 @@ codex mcp login trayo
 
 `codex mcp login` opens the Trayo sign-in in your browser. Restart Codex afterwards.
 
+## Cursor
+
+Once Trayo is listed in the [Cursor Marketplace](https://cursor.com/marketplace), install it from
+**Customize** in Cursor. Until then, add the Trayo MCP server to `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "trayo": { "url": "https://api.trayo.ai/v1/mcp" }
+  }
+}
+```
+
+Cursor asks you to sign in with your Trayo account in the browser; there is no API key to paste.
+
 ## Claude Cowork and Claude Desktop
 
 Install the plugin for its skills, then add a custom connector named **Trayo** at

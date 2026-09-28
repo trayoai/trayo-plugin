@@ -40,6 +40,22 @@ function createFixture(overrides = {}) {
       trayo: { url: overrides.mcpUrl ?? 'https://api.trayo.ai/v1/mcp', ...overrides.mcpServer },
     },
   });
+  writeJson(root, '.cursor-plugin/marketplace.json', {
+    name: 'trayo-plugins',
+    owner: { name: 'Trayo' },
+    plugins: [{ name: 'trayo', source: './trayo', version: '1.2.3', ...overrides.cursorEntry }],
+  });
+  writeJson(root, 'trayo/.cursor-plugin/plugin.json', {
+    name: 'trayo',
+    version: '1.2.3',
+    repository: overrides.repository ?? 'https://github.com/trayoai/trayo-plugin',
+    license: 'MIT',
+    logo: '.claude-plugin/icon.svg',
+    ...overrides.cursorPlugin,
+  });
+  writeJson(root, 'trayo/mcp.json', overrides.cursorMcp ?? {
+    mcpServers: { trayo: { url: 'https://api.trayo.ai/v1/mcp', ...overrides.cursorMcpServer } },
+  });
   writeFileSync(path.join(root, 'README.md'), '# Public plugin\n');
   writeFileSync(path.join(root, 'trayo', 'README.md'), '# Trayo\n');
   writeFileSync(path.join(root, 'trayo', 'LICENSE'), 'MIT License\n');
@@ -117,6 +133,59 @@ test('requires an https privacy policy URL and an SVG icon inside the plugin', a
       assert.throws(() => validatePlugin(root), message);
     });
   }
+});
+
+test('keeps the Cursor manifests in sync with the Claude manifests', async (context) => {
+  for (const [name, overrides, message] of [
+    ['plugin name', { cursorPlugin: { name: 'trayo-cursor' } }, /Cursor plugin name must match/],
+    ['plugin version', { cursorPlugin: { version: '1.2.4' } }, /Cursor plugin version must match/],
+    ['plugin description', { cursorPlugin: { description: 'Something else' } }, /Cursor plugin description must match/],
+    ['plugin license', { cursorPlugin: { license: 'Apache-2.0' } }, /Cursor plugin license must match/],
+    ['marketplace version', { cursorEntry: { version: '1.2.4' } }, /Cursor marketplace entry must match/],
+    ['marketplace source', { cursorEntry: { source: './other' } }, /Cursor marketplace Trayo source/],
+    ['logo file', { cursorPlugin: { logo: 'assets/missing.svg' } }, /Cursor plugin logo must be an SVG/],
+    ['logo outside the plugin', { cursorPlugin: { logo: '../README.md' } }, /Cursor plugin logo must be an SVG/],
+    ['credential variables', { cursorPlugin: { variables: { type: 'object', properties: {} } } }, /credential variables/],
+  ]) {
+    await context.test(name, (childContext) => {
+      const root = createFixture(overrides);
+      childContext.after(() => rmSync(root, { recursive: true, force: true }));
+      assert.throws(() => validatePlugin(root), message);
+    });
+  }
+
+  await context.test('missing Cursor marketplace', (childContext) => {
+    const root = createFixture();
+    childContext.after(() => rmSync(root, { recursive: true, force: true }));
+    rmSync(path.join(root, '.cursor-plugin'), { recursive: true });
+    assert.throws(() => validatePlugin(root), /Could not read \.cursor-plugin\/marketplace\.json/);
+  });
+});
+
+test('requires the Cursor MCP server to sign in with OAuth', async (context) => {
+  for (const [name, overrides, message] of [
+    ['static header', { cursorMcpServer: { headers: { Authorization: 'Bearer ${API_TOKEN}' } } }, /without headers/],
+    ['static OAuth client', { cursorMcpServer: { auth: { CLIENT_ID: 'client' } } }, /without headers/],
+    ['environment', { cursorMcpServer: { env: { TOKEN: 'value' } } }, /without headers/],
+    ['other endpoint', { cursorMcpServer: { url: 'https://example.com/mcp' } }, /public production endpoint/],
+    [
+      'extra server',
+      { cursorMcp: { mcpServers: { trayo: { url: 'https://api.trayo.ai/v1/mcp' }, other: { url: 'https://example.com/mcp' } } } },
+      /only the Trayo server/,
+    ],
+  ]) {
+    await context.test(name, (childContext) => {
+      const root = createFixture(overrides);
+      childContext.after(() => rmSync(root, { recursive: true, force: true }));
+      assert.throws(() => validatePlugin(root), message);
+    });
+  }
+});
+
+test('scans the Cursor marketplace for private references', (context) => {
+  const root = createFixture({ cursorEntry: { homepage: 'https://github.com/trayoai/example-repo' } });
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  assert.throws(() => validatePlugin(root), /unapproved repository reference: \.cursor-plugin/);
 });
 
 test('rejects private references and credential markers before release', async (context) => {
