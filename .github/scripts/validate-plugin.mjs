@@ -67,6 +67,45 @@ function validateCursorPlugin(root, claudeEntry, claudePlugin) {
   );
 }
 
+// Gemini CLI reads gemini-extension.json from the extension root, which is the repository root for
+// git installs and the gallery crawler, and the archive root for the release asset.
+const geminiManifestKeys = new Set(['name', 'version', 'description', 'contextFileName', 'mcpServers']);
+
+function validateGeminiExtension(root, claudePlugin) {
+  invariant(isFile(root, 'gemini-extension.json'), 'Gemini CLI manifest must be gemini-extension.json at the repository root.');
+  const manifest = readJson(root, 'gemini-extension.json');
+
+  for (const field of ['name', 'version', 'description']) {
+    invariant(
+      typeof manifest[field] === 'string' && manifest[field] === claudePlugin[field],
+      `Gemini extension ${field} must match the Claude plugin manifest.`,
+    );
+  }
+  invariant(
+    Object.keys(manifest).every((key) => geminiManifestKeys.has(key)),
+    `Gemini extension may only set ${[...geminiManifestKeys].join(', ')}; settings and credentials are not allowed.`,
+  );
+  invariant(
+    manifest.contextFileName === 'GEMINI.md' && isFile(root, 'GEMINI.md'),
+    'Gemini extension contextFileName must be GEMINI.md, present at the repository root.',
+  );
+
+  const servers = manifest.mcpServers ?? {};
+  const server = servers.trayo;
+  invariant(
+    server?.httpUrl === 'https://api.trayo.ai/v1/mcp' && Object.keys(servers).length === 1,
+    'Gemini extension must declare only the Trayo server at the public production endpoint.',
+  );
+  invariant(
+    Object.keys(server).every((key) => key === 'httpUrl'),
+    'Gemini extension MCP server must sign in with OAuth, without headers, auth, env, or placeholders.',
+  );
+  invariant(
+    !readFileSync(path.join(root, 'gemini-extension.json'), 'utf8').includes('${'),
+    'Gemini extension must not reference ${...} variables or the environment.',
+  );
+}
+
 const forbiddenContent = [
   { name: 'unapproved repository reference', pattern: /\btrayoai\/(?!(?:trayo-plugin|ui)(?=[^a-z0-9._-]|$))[a-z0-9._-]+\b/i },
   { name: 'private key material', pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
@@ -74,6 +113,9 @@ const forbiddenContent = [
   { name: 'AWS access key', pattern: /\bAKIA[0-9A-Z]{16}\b/ },
   { name: 'Slack token', pattern: /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/ },
 ];
+
+// Everything a client installs. CI requires a version increase when any of these paths change.
+export const publishedPaths = ['.claude-plugin', '.cursor-plugin', 'README.md', 'GEMINI.md', 'gemini-extension.json', 'trayo'];
 
 function validatePublicFiles(root) {
   function visit(relativePath) {
@@ -98,7 +140,7 @@ function validatePublicFiles(root) {
     }
   }
 
-  for (const relativePath of ['README.md', '.claude-plugin', '.cursor-plugin', 'trayo']) visit(relativePath);
+  for (const relativePath of publishedPaths) visit(relativePath);
 }
 
 export function validatePlugin(root = process.cwd()) {
@@ -136,13 +178,17 @@ export function validatePlugin(root = process.cwd()) {
     typeof plugin.license === 'string' && plugin.license.length > 0 && isFile(root, 'trayo/LICENSE'),
     'Plugin must set license in plugin.json and include trayo/LICENSE.',
   );
-  invariant(
-    typeof plugin.privacyPolicyUrl === 'string' && plugin.privacyPolicyUrl.startsWith('https://'),
-    'Plugin must set privacyPolicyUrl to an https:// URL.',
-  );
+  // Anthropic's directory listing reads these links from plugin.json.
+  for (const field of ['privacyPolicyUrl', 'termsOfServiceUrl', 'documentationUrl', 'supportUrl']) {
+    invariant(
+      typeof plugin[field] === 'string' && plugin[field].startsWith('https://'),
+      `Plugin must set ${field} to an https:// URL.`,
+    );
+  }
   invariant(isPluginSvg(root, plugin.icon), 'Plugin icon must be an SVG file inside trayo/.');
 
   validateCursorPlugin(root, marketplacePlugin, plugin);
+  validateGeminiExtension(root, plugin);
   validatePublicFiles(root);
 
   return plugin.version;

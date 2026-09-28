@@ -1,13 +1,16 @@
 {
   "name": "trayo",
   "displayName": "Trayo",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Build apps with Trayo GTM UI, find companies, lookalikes and people, research accounts and the people at them, look up contact details, define signals, run discovery, and read events with Trayo.",
   "author": { "name": "Trayo", "url": "https://trayo.ai" },
   "homepage": "https://trayo.ai",
   "repository": "https://github.com/trayoai/trayo-plugin",
   "license": "MIT",
   "privacyPolicyUrl": "https://www.trayo.ai/privacy-policy/",
+  "termsOfServiceUrl": "https://www.trayo.ai/terms-and-conditions/",
+  "documentationUrl": "https://www.trayo.ai/mcp/",
+  "supportUrl": "https://www.trayo.ai/mcp/",
   "icon": "./.claude-plugin/icon.svg",
   "keywords": ["trayo", "signals", "sales", "discovery", "accounts", "find", "people", "contacts", "research"]
 }
