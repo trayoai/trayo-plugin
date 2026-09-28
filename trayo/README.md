@@ -166,7 +166,7 @@ the next request; removing your membership revokes access. Workspace plan and us
 
 - The Trayo tools, always loaded (no tool-search deferral), including `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_update_account`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
 - Twelve skills, invoked automatically when you describe the job: `/trayo:build-app`, `/trayo:onboard-workspace`, `/trayo:find-intent-accounts`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:check-account-events`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
-- The eleven data workflow skills end the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal), re-run it on your own cadence (a REST recipe), or hand it off (a CSV or a file). The app-building skill hands back the app and its verification results.
+- The eleven data workflow skills end the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal), run it again when asked (a REST recipe), or hand it off (a CSV or a file). The app-building skill hands back the app and its verification results.
 
 ## Build apps with Trayo
 
@@ -234,7 +234,7 @@ between the original preview and export.
 
 ## What it does not do
 
-Market research. Outbound, CRM push and routing — anything that acts on what you found. Each discovery starts with an explicit tool or API call. If you ask for repeated checks, a calling agent or script can start those runs and read their results on your chosen cadence. For an output beyond a list — a CSV, a team-chat digest, a push into your CRM — the skills will help you write a script against the REST API these tools wrap.
+Market research. Outbound, CRM push and routing — anything that acts on what you found. Each discovery starts with an explicit tool or API call. For an output beyond a list — a CSV, a team-chat digest, a push into your CRM — the skills will help you write a script against the REST API these tools wrap.
 
 ## Notes
 

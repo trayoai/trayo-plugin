@@ -42,5 +42,5 @@ By now you must have: read the run's event pages to the end, not only the first 
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: `trayo_add_to_list` `{ name, members: [{ accountId, via: 'signal', eventId }] }` for the accounts that fired. The signal stays defined for future discovery runs you request.
-- Re-run it on your cadence: recipe `discover-account-events` at `https://api.trayo.ai/v1/recipes`, with `POST /v1/discoveries` for one run over more than 200 accounts or 10 signals.
+- Run it again on request: recipe `discover-account-events` at `https://api.trayo.ai/v1/recipes`, with `POST /v1/discoveries` for one run over more than 200 accounts or 10 signals.
 - Hand it off: a CSV of the events with their account names, written from the rows you hold.

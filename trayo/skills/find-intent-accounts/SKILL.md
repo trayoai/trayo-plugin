@@ -69,5 +69,5 @@ By now you must have: had the user approve the ICP before adding any company; sh
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: `trayo_add_to_list` `{ name, members: [{ accountId, via: 'signal', eventId }] }` for the top companies. Over 200 members takes several calls: send `name` on the first one only, then the `list.id` it answers with as `listId`, or two by-name calls race and split the set across two lists with the same name. The companies and signals stay in the workspace for future discovery runs you request. For the people at the top companies, skill `find-stakeholders`.
-- Re-run it on your cadence: recipe `exact-prospecting` for the ICP search and recipe `discover-account-events` for the signal runs, at `https://api.trayo.ai/v1/recipes`, with the same filters, signal keys and 90-day window.
+- Run it again on request: recipe `exact-prospecting` for the ICP search and recipe `discover-account-events` for the signal runs, at `https://api.trayo.ai/v1/recipes`, with the same filters, signal keys and 90-day window.
 - Hand it off: a CSV of the ranked companies with each signal's evidence and link, written from the rows you hold.

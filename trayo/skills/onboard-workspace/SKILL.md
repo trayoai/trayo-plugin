@@ -99,5 +99,5 @@ By now you must have: run Step 0 and stopped on an already-configured workspace;
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: everything above is already saved — `trayo_list_events` reads what discovery found, and `trayo_search_stakeholders` then `trayo_add_people` fill in people at accounts that still show `people: []`.
-- Re-run it on your cadence: recipe `start-here` at `https://api.trayo.ai/v1/recipes` for a scripted setup of the next workspace.
+- Run it again on request: recipe `start-here` at `https://api.trayo.ai/v1/recipes` for a scripted setup of the next workspace.
 - Hand it off: a summary of the setup written to a file the user names.

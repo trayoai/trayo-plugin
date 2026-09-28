@@ -31,5 +31,5 @@ By now you must have: presented the people and let the user iterate before addin
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: `trayo_add_to_list` `{ name, members: [{ personId, via: 'find' }] }` — the working set the app shows under your user.
-- Re-run it on your cadence: save the `definition` with `trayo_set_workspace`, then run the same `trayo_search_stakeholders` or `trayo_find_people` call again whenever the user asks; recipe `stakeholders-at-a-company` describes the same steps for a script the user schedules on their own.
+- Run it again on request: save the `definition` with `trayo_set_workspace`, then run the same `trayo_search_stakeholders` or `trayo_find_people` call when the user asks; recipe `stakeholders-at-a-company` describes the same steps for a script the user starts.
 - Hand it off: a CSV of name, title, company and email, written from the rows you hold.

@@ -346,7 +346,7 @@ test('every checked-in data workflow skill has a complete final handoff', () => 
     assert.match(finish, /^Hand back\b/m, name);
     assert.match(finish, /^By now you must have\b/m, name);
     assert.match(finish, /wait for the user's pick/, name);
-    const exits = ['- Keep it in Trayo:', '- Re-run it on your cadence:', '- Hand it off:'];
+    const exits = ['- Keep it in Trayo:', '- Run it again on request:', '- Hand it off:'];
     const positions = exits.map((exit) => finish.indexOf(exit));
     assert.ok(positions.every((position) => position >= 0), `${name} is missing a handoff option`);
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b), name);
@@ -365,8 +365,8 @@ test('plugin guides do not promise a fixed tool count', () => {
   }
 });
 
-test('published plugin describes explicit discovery without monitoring concepts', () => {
-  const forbidden = /\bmonitor(?:ing|ed|s)?\b|\bstanding[\s-]+(?:scan|schedule)\b|\bautomatic[\s-]+(?:discovery|coverage|scans?)\b|\bbackground[\s-]+(?:discovery|checks?|scans?)\b/i;
+test('published plugin describes explicit discovery without monitoring or recurring discovery concepts', () => {
+  const forbidden = /\bmonitor(?:ing|ed|s)?\b|\bstanding[\s-]+(?:scan|schedule)\b|\bautomatic[\s-]+(?:discovery|coverage|scans?)\b|\bbackground[\s-]+(?:discovery|checks?|scans?)\b|\b(?:your|its|own|chosen) cadence\b|\bscheduled[\s-]+(?:discovery|checks?|script)\b|\bschedule in the calling agent\b/i;
 
   function visit(relativePath) {
     assert.doesNotMatch(relativePath, forbidden, `Published path: ${relativePath}`);
@@ -385,7 +385,7 @@ test('account event checks require a user request before repeating discovery', (
   const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'check-account-events', 'SKILL.md'), 'utf8');
   assert.match(body, /^name: check-account-events$/m);
   assert.match(body, /Run later checks only when the user requests them/);
-  assert.match(body, /keep the cadence in the calling agent or a script/);
+  assert.match(body, /Each later check needs a new explicit discovery request/);
   assert.match(body, /Start an explicit discovery for every saved account and all selected signals/);
   assert.match(body, /recipe `discover-account-events`/);
 });
