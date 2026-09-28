@@ -366,7 +366,7 @@ test('plugin guides do not promise a fixed tool count', () => {
 });
 
 test('published plugin describes explicit discovery without monitoring or recurring discovery concepts', () => {
-  const forbidden = /\bmonitor(?:ing|ed|s)?\b|\bstanding[\s-]+(?:scan|schedule)\b|\bautomatic[\s-]+(?:discovery|coverage|scans?)\b|\bbackground[\s-]+(?:discovery|checks?|scans?)\b|\b(?:your|its|own|chosen) cadence\b|\bscheduled[\s-]+(?:discovery|checks?|script)\b|\bschedule in the calling agent\b/i;
+  const forbidden = /\bmonitor(?:ing|ed|s)?\b|\bstanding[\s-]+(?:scan|schedule)\b|\b(?:automated?|automatic|recurring|scheduled|periodic)[\s-]+(?:account[\s-]+)?(?:discovery|coverage|scans?|checks?)\b|\bbackground[\s-]+(?:discovery|checks?|scans?)\b|\b(?:your|its|own|chosen) cadence\b|\bscheduled[\s-]+script\b|\bschedule in the calling agent\b/i;
 
   function visit(relativePath) {
     assert.doesNotMatch(relativePath, forbidden, `Published path: ${relativePath}`);
@@ -386,6 +386,7 @@ test('account event checks require a user request before repeating discovery', (
   assert.match(body, /^name: check-account-events$/m);
   assert.match(body, /Run later checks only when the user requests them/);
   assert.match(body, /Each later check needs a new explicit discovery request/);
+  assert.match(body, /start each new discovery only after a new user request/);
   assert.match(body, /Start an explicit discovery for every saved account and all selected signals/);
   assert.match(body, /recipe `discover-account-events`/);
 });

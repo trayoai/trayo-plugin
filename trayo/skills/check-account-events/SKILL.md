@@ -19,7 +19,7 @@ A settled run with no reported error does not prove that every saved account was
    - For named accounts, call `trayo_import_accounts` with up to 200 `{ name, url, linkedinHandle }` rows. Use a URL with its scheme and include the LinkedIn company handle when known.
    - For a company definition, call `trayo_find_companies`. Follow `nextCursor` for a filters-only search. A `query` search returns one ranked page. Import the results using each row's `url` and read `droppedUnaddressable` before reporting a count.
    - Collect `created[].id` and every duplicate row's `existingId`. New accounts are assigned to the acting user. Duplicate imports do not change identity or assignment.
-   - Ask before the first backfill over more than 100 accounts. If the user has requested repeated checks, later checks may re-run that approved set without another approval; adding accounts or signals needs agreement.
+   - Ask before the first backfill over more than 100 accounts. Keep the approved account set for later checks, but start each new discovery only after a new user request. Adding accounts or signals needs agreement.
 4. Save these IDs with `trayo_add_to_list`, using account members and their `via` value. For more than 200 members, send `name` once, then use the returned `list.id` for later batches. Store `list.id` so later checks use the same account set.
 5. Create one signal per business event with `trayo_create_signal`. Keep the `signalKeys` for later checks. Use one discovery for all selected signals.
 
