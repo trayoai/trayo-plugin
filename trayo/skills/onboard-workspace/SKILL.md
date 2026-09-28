@@ -98,6 +98,6 @@ Hand back the stakeholder definition and solutions you set, the account cohort (
 By now you must have: run Step 0 and stopped on an already-configured workspace; asked before running discovery on more than 100 accounts total; reported the surplus zero-event accounts separately and left their removal to the user.
 
 Offer these in one line, then wait for the user's pick:
-- Keep it in Trayo: everything above is already saved — `trayo_list_events` reads what discovery found, and `trayo_search_stakeholders` then `trayo_add_people` fill in people at accounts that still show `people: []`. When `trayo_whoami` reports `monitoring.enabled: true`, Trayo's own standing scan keeps searching the workspace's accounts.
+- Keep it in Trayo: everything above is already saved — `trayo_list_events` reads what discovery found, and `trayo_search_stakeholders` then `trayo_add_people` fill in people at accounts that still show `people: []`.
 - Re-run it on your cadence: recipe `start-here` at `https://api.trayo.ai/v1/recipes` for a scripted setup of the next workspace.
 - Hand it off: a summary of the setup written to a file the user names.

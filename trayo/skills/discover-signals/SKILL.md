@@ -1,9 +1,9 @@
 ---
 name: discover-signals
-description: Track a list of companies in Trayo and read what happens at them — import accounts, define a signal, run a discovery, wait for it, read the events. Use when the user has company names or websites and wants news, hiring or job-change events for them, or asks to "run discovery", "find signals", "monitor these accounts" or "what happened at these companies".
+description: Find events for a list of companies in Trayo — import accounts, define a signal, run a discovery, wait for it, read the events. Use when the user has company names or websites and wants news, hiring or job-change events for them, or asks to "run discovery", "find signals", "check these accounts" or "what happened at these companies".
 ---
 
-# Track companies and read what happens at them
+# Find events at selected companies
 
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.
 
@@ -41,6 +41,6 @@ Hand back the companies imported (and skipped), the signal used, the run id, `ev
 By now you must have: read the run's event pages to the end, not only the first 25; asked before running discovery on more than 100 accounts; read `run.error` and `run.blockedSignals` before reporting an empty result.
 
 Offer these in one line, then wait for the user's pick:
-- Keep it in Trayo: `trayo_add_to_list` `{ name, members: [{ accountId, via: 'signal', eventId }] }` for the accounts that fired. The signal stays defined, and when `trayo_whoami` reports `monitoring.enabled: true`, Trayo's own standing scan keeps searching the workspace's accounts.
-- Re-run it on your cadence: recipe `monitor-accounts` at `https://api.trayo.ai/v1/recipes`, with `POST /v1/discoveries` for one run over more than 200 accounts or 10 signals.
+- Keep it in Trayo: `trayo_add_to_list` `{ name, members: [{ accountId, via: 'signal', eventId }] }` for the accounts that fired. The signal stays defined for future discovery runs you request.
+- Re-run it on your cadence: recipe `discover-account-events` at `https://api.trayo.ai/v1/recipes`, with `POST /v1/discoveries` for one run over more than 200 accounts or 10 signals.
 - Hand it off: a CSV of the events with their account names, written from the rows you hold.

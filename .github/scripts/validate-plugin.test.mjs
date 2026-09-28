@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, readFileSync, readdirSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { lstatSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
-import { validatePlugin } from './validate-plugin.mjs';
+import { publishedPaths, validatePlugin } from './validate-plugin.mjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(dirname, '..', '..');
@@ -365,8 +365,33 @@ test('plugin guides do not promise a fixed tool count', () => {
   }
 });
 
-test('monitoring examples use a backfill run or a saved account', () => {
-  const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'monitor-accounts', 'SKILL.md'), 'utf8');
+test('published plugin describes explicit discovery without monitoring concepts', () => {
+  const forbidden = /\bmonitor(?:ing|ed|s)?\b|\bstanding[\s-]+(?:scan|schedule)\b|\bautomatic[\s-]+(?:discovery|coverage|scans?)\b|\bbackground[\s-]+(?:discovery|checks?|scans?)\b/i;
+
+  function visit(relativePath) {
+    assert.doesNotMatch(relativePath, forbidden, `Published path: ${relativePath}`);
+    const absolutePath = path.join(repoRoot, relativePath);
+    if (lstatSync(absolutePath).isDirectory()) {
+      for (const entry of readdirSync(absolutePath)) visit(path.join(relativePath, entry));
+      return;
+    }
+    assert.doesNotMatch(readFileSync(absolutePath, 'utf8'), forbidden, relativePath);
+  }
+
+  for (const relativePath of publishedPaths) visit(relativePath);
+});
+
+test('account event checks require a user request before repeating discovery', () => {
+  const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'check-account-events', 'SKILL.md'), 'utf8');
+  assert.match(body, /^name: check-account-events$/m);
+  assert.match(body, /Run later checks only when the user requests them/);
+  assert.match(body, /keep the cadence in the calling agent or a script/);
+  assert.match(body, /Start an explicit discovery for every saved account and all selected signals/);
+  assert.match(body, /recipe `discover-account-events`/);
+});
+
+test('account event examples use a backfill run or a saved account', () => {
+  const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'check-account-events', 'SKILL.md'), 'utf8');
   const examples = [...body.matchAll(/```json\s*([\s\S]*?)```/g)].map((match) => JSON.parse(match[1]));
   assert.equal(examples.length, 2);
   assert.equal(typeof examples[0].discoveryRunId, 'string');

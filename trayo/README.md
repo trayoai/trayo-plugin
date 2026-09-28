@@ -1,6 +1,6 @@
 # Trayo plugin
 
-Use Trayo from Claude Code, Claude Cowork, Codex, Cursor, Gemini CLI, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with twelve skills: build an app, onboard a new workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, monitor accounts, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
+Use Trayo from Claude Code, Claude Cowork, Codex, Cursor, Gemini CLI, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with twelve skills: build an app, onboard a new workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, check account events, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
 
 You sign in with your Trayo account in the browser the first time a Trayo tool is used. The connection uses your own workspace permissions. There is no API key to paste, and the plugin stores no credentials.
 
@@ -95,7 +95,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.1. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.2. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 
@@ -165,8 +165,8 @@ the next request; removing your membership revokes access. Workspace plan and us
 ## What you get
 
 - The Trayo tools, always loaded (no tool-search deferral), including `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_update_account`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
-- Twelve skills, invoked automatically when you describe the job: `/trayo:build-app`, `/trayo:onboard-workspace`, `/trayo:find-intent-accounts`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:monitor-accounts`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
-- The eleven data workflow skills end the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal, with the standing scan), re-run it on your own cadence (a REST recipe), or hand it off (a CSV or a file). The app-building skill hands back the app and its verification results.
+- Twelve skills, invoked automatically when you describe the job: `/trayo:build-app`, `/trayo:onboard-workspace`, `/trayo:find-intent-accounts`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:check-account-events`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
+- The eleven data workflow skills end the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal), re-run it on your own cadence (a REST recipe), or hand it off (a CSV or a file). The app-building skill hands back the app and its verification results.
 
 ## Build apps with Trayo
 
@@ -187,8 +187,8 @@ The skill covers source vendoring, the provided people and company components, a
 - **Read the signals found for an account** — `trayo_list_events` with `accountId` returns what discovery found. The events carry no significance or relevance score, so they come back unranked.
 - **Scan a list of accounts for one signal** — `/trayo:scan-for-signal`: `trayo_create_signal` → `trayo_run_discovery` → `trayo_list_events`.
 - **Run the whole loop end to end** — `/trayo:discover-signals`: import the companies, define the signal, run the discovery, read the events.
-- Keep watching accounts with `/trayo:monitor-accounts`. Read each backfill with `discoveryRunId`. For later checks, load the saved list, run discovery for its accounts, then read each `accountId` with `signalKeys` and `discoveredSince`. An enabled schedule does not confirm current coverage for every saved account. Advance the checkpoint only after all pages and the digest succeed. Set `stakeholderCriteria` before discovery to attach people to future events.
-- **Watch people for job changes** — `/trayo:recent-movers`: `trayo_search_job_changes`.
+- **Check account events** — `/trayo:check-account-events`: run discovery for a saved account set and read its events. Read each backfill with `discoveryRunId`. For later checks the user requests, load the saved list, run discovery for its accounts, then read each `accountId` with `signalKeys` and `discoveredSince`. Advance the checkpoint only after all pages and the digest succeed. Set `stakeholderCriteria` before discovery to attach people to future events.
+- **Find people who changed jobs** — `/trayo:recent-movers`: `trayo_search_job_changes`.
 - **Find the stakeholders at a company** — `/trayo:find-stakeholders`: `trayo_search_stakeholders` or `trayo_find_people` → `trayo_add_people` → `trayo_enrich_emails` → `trayo_add_to_list`. The chain ends with people you can write to, not with a search result.
 - **Look up contact details** — `/trayo:enrich-contacts`: `trayo_list_people` or `trayo_add_people` → `trayo_enrich_emails` (or `trayo_enrich_phones`) → `trayo_get_contacts` → a list or a CSV. Every lookup draws on the workspace's lookup allowance; `trayo_whoami` reports what is left of it.
 
@@ -234,7 +234,7 @@ between the original preview and export.
 
 ## What it does not do
 
-Market research. Outbound, CRM push and routing — anything that acts on what you found. Alerts are polling, not push: monitoring re-reads on the schedule you run it on, nothing arrives on its own, and no schedule lives inside Trayo. Between your checks, Trayo scans your accounts on its own — `trayo_whoami` reports whether your workspace is covered at all. For an output beyond a list — a CSV, a team-chat digest, a push into your CRM — the skills will help you write a script against the REST API these tools wrap.
+Market research. Outbound, CRM push and routing — anything that acts on what you found. Each discovery starts with an explicit tool or API call. If you ask for repeated checks, a calling agent or script can start those runs and read their results on your chosen cadence. For an output beyond a list — a CSV, a team-chat digest, a push into your CRM — the skills will help you write a script against the REST API these tools wrap.
 
 ## Notes
 
