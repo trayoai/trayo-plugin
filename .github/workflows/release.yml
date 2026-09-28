@@ -8,6 +8,8 @@ on:
       - ".claude-plugin/**"
       - ".cursor-plugin/**"
       - "README.md"
+      - "GEMINI.md"
+      - "gemini-extension.json"
       - "trayo/**"
   workflow_dispatch:
 
@@ -42,10 +44,22 @@ jobs:
           version="$(node .github/scripts/validate-plugin.mjs)"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
+      # Gemini CLI installs from the latest release and uses its only asset when there is exactly
+      # one, so every release carries this single archive with gemini-extension.json at its root.
+      - name: Build Gemini CLI extension archive
+        id: gemini
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/trayo-gemini-extension.tar.gz"
+          node .github/scripts/build-gemini-extension.mjs "$RUNNER_TEMP/gemini-extension" "$archive"
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+
       - name: Create idempotent GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           PLUGIN_VERSION: ${{ steps.metadata.outputs.version }}
+          GEMINI_ARCHIVE: ${{ steps.gemini.outputs.archive }}
         shell: bash
         run: |
           set -euo pipefail
@@ -55,13 +69,17 @@ jobs:
 
           if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
             tagged_commit="$(git rev-list -n 1 "$tag")"
-            if ! git diff --quiet "$tag" "$GITHUB_SHA" -- .claude-plugin .cursor-plugin README.md trayo; then
+            if ! git diff --quiet "$tag" "$GITHUB_SHA" -- .claude-plugin .cursor-plugin README.md GEMINI.md gemini-extension.json trayo; then
               echo "Tag $tag already points to different plugin content at $tagged_commit." >&2
               exit 1
             fi
 
             if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
               echo "Release $tag already exists for the current plugin content at $tagged_commit."
+              assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
+              if ! grep -Fx "$(basename "$GEMINI_ARCHIVE")" <<< "$assets" >/dev/null; then
+                gh release upload "$tag" "$GEMINI_ARCHIVE" --repo "$GITHUB_REPOSITORY"
+              fi
               exit 0
             fi
 
@@ -69,7 +87,8 @@ jobs:
               --repo "$GITHUB_REPOSITORY" \
               --verify-tag \
               --title "Trayo plugin ${PLUGIN_VERSION}" \
-              --generate-notes
+              --generate-notes \
+              "$GEMINI_ARCHIVE"
             exit 0
           fi
 
@@ -77,4 +96,5 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
             --title "Trayo plugin ${PLUGIN_VERSION}" \
-            --generate-notes
+            --generate-notes \
+            "$GEMINI_ARCHIVE"

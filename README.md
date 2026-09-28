@@ -15,7 +15,7 @@ claude plugin install trayo@trayo-plugins
 
 Start a new Claude Code session. The first time Claude uses a Trayo tool, sign in with your Trayo account in the browser and approve the workspace. To sign in ahead of time, run `/mcp`, select the Trayo server, and choose **Authenticate** if it needs authentication.
 
-The `trayo` server should be connected with 29 tools. Ask Claude to call `trayo_whoami` to confirm the workspace and your permissions.
+The `trayo` server should show as connected. Ask Claude to call `trayo_whoami` to confirm the workspace and your permissions.
 
 If you start Claude Code with `--strict-mcp-config`, add Trayo to the file passed with
 `--mcp-config` as shown in [the plugin guide](trayo/README.md). Strict mode excludes the
@@ -46,6 +46,16 @@ Once Trayo is listed in the [Cursor Marketplace](https://cursor.com/marketplace)
 ```
 
 Cursor asks you to sign in with your Trayo account in the browser; there is no API key to paste.
+
+## Gemini CLI
+
+```bash
+gemini extensions install https://github.com/trayoai/trayo-plugin
+```
+
+Start Gemini CLI and run `/mcp auth trayo` to sign in with your Trayo account in the browser; there is no API key
+to paste. Then ask Gemini to call `trayo_whoami`. The extension adds the Trayo MCP server, the twelve skills, and a
+short `GEMINI.md` context file.
 
 ## Claude Cowork and Claude Desktop
 

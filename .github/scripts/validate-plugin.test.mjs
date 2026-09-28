@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,9 +29,13 @@ function createFixture(overrides = {}) {
   writeJson(root, 'trayo/.claude-plugin/plugin.json', {
     name: 'trayo',
     version: overrides.pluginVersion ?? '1.2.3',
+    description: 'Trayo plugin',
     repository: overrides.repository ?? 'https://github.com/trayoai/trayo-plugin',
     license: 'MIT',
     privacyPolicyUrl: 'https://www.trayo.ai/privacy-policy/',
+    termsOfServiceUrl: 'https://www.trayo.ai/terms-and-conditions/',
+    documentationUrl: 'https://www.trayo.ai/mcp/',
+    supportUrl: 'https://www.trayo.ai/mcp/',
     icon: './.claude-plugin/icon.svg',
     ...overrides.plugin,
   });
@@ -48,6 +52,7 @@ function createFixture(overrides = {}) {
   writeJson(root, 'trayo/.cursor-plugin/plugin.json', {
     name: 'trayo',
     version: '1.2.3',
+    description: 'Trayo plugin',
     repository: overrides.repository ?? 'https://github.com/trayoai/trayo-plugin',
     license: 'MIT',
     logo: '.claude-plugin/icon.svg',
@@ -56,6 +61,15 @@ function createFixture(overrides = {}) {
   writeJson(root, 'trayo/mcp.json', overrides.cursorMcp ?? {
     mcpServers: { trayo: { url: 'https://api.trayo.ai/v1/mcp', ...overrides.cursorMcpServer } },
   });
+  writeJson(root, 'gemini-extension.json', {
+    name: 'trayo',
+    version: '1.2.3',
+    description: 'Trayo plugin',
+    contextFileName: 'GEMINI.md',
+    mcpServers: { trayo: { httpUrl: 'https://api.trayo.ai/v1/mcp', ...overrides.geminiServer } },
+    ...overrides.gemini,
+  });
+  writeFileSync(path.join(root, 'GEMINI.md'), '# Trayo\n');
   writeFileSync(path.join(root, 'README.md'), '# Public plugin\n');
   writeFileSync(path.join(root, 'trayo', 'README.md'), '# Trayo\n');
   writeFileSync(path.join(root, 'trayo', 'LICENSE'), 'MIT License\n');
@@ -119,10 +133,14 @@ test('requires a declared license and a LICENSE file in the plugin folder', asyn
   });
 });
 
-test('requires an https privacy policy URL and an SVG icon inside the plugin', async (context) => {
+test('requires https directory listing URLs and an SVG icon inside the plugin', async (context) => {
   for (const [name, overrides, message] of [
     ['missing privacy policy', { plugin: { privacyPolicyUrl: undefined } }, /privacyPolicyUrl/],
     ['http privacy policy', { plugin: { privacyPolicyUrl: 'http://www.trayo.ai/privacy-policy/' } }, /privacyPolicyUrl/],
+    ['missing terms of service', { plugin: { termsOfServiceUrl: undefined } }, /termsOfServiceUrl/],
+    ['missing documentation', { plugin: { documentationUrl: undefined } }, /documentationUrl/],
+    ['missing support', { plugin: { supportUrl: undefined } }, /supportUrl/],
+    ['non-https support', { plugin: { supportUrl: 'mailto:support@example.com' } }, /supportUrl to an https:\/\/ URL/],
     ['missing icon field', { plugin: { icon: undefined } }, /icon must be an SVG file/],
     ['missing icon file', { plugin: { icon: './.claude-plugin/missing.svg' } }, /icon must be an SVG file/],
     ['icon outside the plugin', { plugin: { icon: '../README.md' } }, /icon must be an SVG file/],
@@ -180,6 +198,85 @@ test('requires the Cursor MCP server to sign in with OAuth', async (context) => 
       assert.throws(() => validatePlugin(root), message);
     });
   }
+});
+
+test('keeps the Gemini CLI manifest at the repository root and in sync with the Claude manifest', async (context) => {
+  for (const [name, overrides, message] of [
+    ['name', { gemini: { name: 'trayo-gemini' } }, /Gemini extension name must match/],
+    ['version', { gemini: { version: '1.2.4' } }, /Gemini extension version must match/],
+    ['missing version', { gemini: { version: undefined } }, /Gemini extension version must match/],
+    ['description', { gemini: { description: 'Something else' } }, /Gemini extension description must match/],
+    ['context file name', { gemini: { contextFileName: 'trayo/GEMINI.md' } }, /contextFileName must be GEMINI\.md/],
+    ['settings', {
+      gemini: { settings: [{ name: 'API key', envVar: 'TRAYO_API_KEY', sensitive: true }] },
+    }, /settings and credentials are not allowed/],
+    ['excluded tools', { gemini: { excludeTools: ['run_shell_command'] } }, /may only set/],
+  ]) {
+    await context.test(name, (childContext) => {
+      const root = createFixture(overrides);
+      childContext.after(() => rmSync(root, { recursive: true, force: true }));
+      assert.throws(() => validatePlugin(root), message);
+    });
+  }
+
+  await context.test('manifest only inside the plugin folder', (childContext) => {
+    const root = createFixture();
+    childContext.after(() => rmSync(root, { recursive: true, force: true }));
+    renameSync(path.join(root, 'gemini-extension.json'), path.join(root, 'trayo', 'gemini-extension.json'));
+    assert.throws(() => validatePlugin(root), /gemini-extension\.json at the repository root/);
+  });
+
+  await context.test('missing context file', (childContext) => {
+    const root = createFixture();
+    childContext.after(() => rmSync(root, { recursive: true, force: true }));
+    rmSync(path.join(root, 'GEMINI.md'));
+    assert.throws(() => validatePlugin(root), /contextFileName must be GEMINI\.md/);
+  });
+});
+
+test('requires the Gemini CLI MCP server to sign in with OAuth', async (context) => {
+  for (const [name, overrides, message] of [
+    ['static header', { geminiServer: { headers: { Authorization: 'Bearer token' } } }, /without headers/],
+    ['OAuth client', { geminiServer: { oauth: { clientId: 'client', clientSecret: 'secret' } } }, /without headers/],
+    ['environment', { geminiServer: { env: { TOKEN: 'value' } } }, /without headers/],
+    ['SSE url', { geminiServer: { httpUrl: undefined, url: 'https://api.trayo.ai/v1/mcp' } }, /public production endpoint/],
+    ['other endpoint', { geminiServer: { httpUrl: 'https://example.com/mcp' } }, /public production endpoint/],
+    [
+      'extra server',
+      { gemini: { mcpServers: { trayo: { httpUrl: 'https://api.trayo.ai/v1/mcp' }, other: { httpUrl: 'https://example.com/mcp' } } } },
+      /only the Trayo server/,
+    ],
+    ['no servers', { gemini: { mcpServers: undefined } }, /only the Trayo server/],
+  ]) {
+    await context.test(name, (childContext) => {
+      const root = createFixture(overrides);
+      childContext.after(() => rmSync(root, { recursive: true, force: true }));
+      assert.throws(() => validatePlugin(root), message);
+    });
+  }
+
+  await context.test('variable anywhere in the manifest', (childContext) => {
+    const description = 'Trayo ${extensionPath}';
+    const root = createFixture({ plugin: { description }, cursorPlugin: { description }, gemini: { description } });
+    childContext.after(() => rmSync(root, { recursive: true, force: true }));
+    assert.throws(() => validatePlugin(root), /must not reference \$\{\.\.\.\} variables/);
+  });
+});
+
+test('scans the Gemini CLI files for private references', async (context) => {
+  await context.test('context file', (childContext) => {
+    const root = createFixture();
+    childContext.after(() => rmSync(root, { recursive: true, force: true }));
+    writeFileSync(path.join(root, 'GEMINI.md'), 'See trayoai/example-repo\n');
+    assert.throws(() => validatePlugin(root), /unapproved repository reference: GEMINI\.md/);
+  });
+
+  await context.test('manifest', (childContext) => {
+    const description = 'Built from trayoai/example-repo';
+    const root = createFixture({ plugin: { description }, cursorPlugin: { description }, gemini: { description } });
+    childContext.after(() => rmSync(root, { recursive: true, force: true }));
+    assert.throws(() => validatePlugin(root), /unapproved repository reference: gemini-extension\.json/);
+  });
 });
 
 test('scans the Cursor marketplace for private references', (context) => {
@@ -257,17 +354,14 @@ test('every checked-in data workflow skill has a complete final handoff', () => 
   }
 });
 
-test('plugin guides describe the same installed tool count', () => {
-  const guide = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
-  const summary = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
-  const listLine = guide.split('\n').find((line) => line.includes('always loaded')) ?? '';
-  const tools = new Set([...listLine.matchAll(/`(trayo_[a-z_]+)`/g)].map((match) => match[1]));
-  assert.ok(tools.size > 0);
-  assert.match(listLine, new RegExp(`^- ${tools.size} tools, always loaded`));
-  for (const text of [guide, summary]) {
-    const counts = [...text.matchAll(/connected with (\d+) tools/g)].map((match) => Number(match[1]));
-    assert.ok(counts.length > 0);
-    assert.ok(counts.every((count) => count === tools.size));
+test('plugin guides do not promise a fixed tool count', () => {
+  // The tools a connection lists depend on the server release and the user's access, so the
+  // guides send users to trayo_whoami instead of naming a count that goes stale.
+  for (const file of ['README.md', path.join('trayo', 'README.md')]) {
+    const text = readFileSync(path.join(repoRoot, file), 'utf8');
+    assert.doesNotMatch(text, /\b\d+ tools\b/, file);
+    assert.match(text, /should show as connected/, file);
+    assert.match(text, /call `trayo_whoami`/, file);
   }
 });
 
@@ -330,8 +424,26 @@ test('setup guides use OAuth sign-in and never read a key from the environment',
   }
 });
 
+test('Gemini CLI setup installs from this repository and signs in with /mcp auth', () => {
+  const manifest = JSON.parse(readFileSync(path.join(repoRoot, 'gemini-extension.json'), 'utf8'));
+  const context = readFileSync(path.join(repoRoot, 'GEMINI.md'), 'utf8');
+  assert.deepEqual(Object.keys(manifest.mcpServers), ['trayo']);
+  assert.match(context, /\/mcp auth trayo/);
+  assert.match(context, /Call `trayo_whoami` first/);
+  for (const file of ['README.md', path.join('trayo', 'README.md')]) {
+    const text = readFileSync(path.join(repoRoot, file), 'utf8');
+    const section = text.split(/^#{2,3} Gemini CLI$/m)[1]?.split(/^#{2,3} /m)[0];
+    assert.ok(section, `${file} has no Gemini CLI section`);
+    assert.match(section, /gemini extensions install https:\/\/github\.com\/trayoai\/trayo-plugin\n/, file);
+    assert.match(section, /`\/mcp auth trayo`/, file);
+    assert.match(section, /no API key/, file);
+    assert.match(section, /`trayo_whoami`/, file);
+  }
+});
+
 test('plugin files never read a credential from the environment', () => {
   const files = [
+    'GEMINI.md',
     path.join('trayo', 'README.md'),
     ...readdirSync(path.join(repoRoot, 'trayo', 'skills')).map((name) => path.join('trayo', 'skills', name, 'SKILL.md')),
   ];
