@@ -3,9 +3,6 @@
     "trayo": {
       "type": "http",
       "url": "https://api.trayo.ai/v1/mcp",
-      "headers": {
-        "Authorization": "Bearer ${user_config.api_key}"
-      },
       "alwaysLoad": true,
       "timeout": 120000
     }

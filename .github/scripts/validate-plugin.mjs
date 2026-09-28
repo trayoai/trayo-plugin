@@ -18,6 +18,55 @@ function readJson(root, relativePath) {
   }
 }
 
+function isFile(root, relativePath) {
+  try {
+    return lstatSync(path.join(root, relativePath)).isFile();
+  } catch {
+    return false;
+  }
+}
+
+function isPluginSvg(root, relativePath) {
+  if (typeof relativePath !== 'string' || path.isAbsolute(relativePath)) return false;
+  const resolved = path.normalize(path.join('trayo', relativePath));
+  return resolved.startsWith(`trayo${path.sep}`) && resolved.endsWith('.svg') && isFile(root, resolved);
+}
+
+function validateCursorPlugin(root, claudeEntry, claudePlugin) {
+  const marketplace = readJson(root, '.cursor-plugin/marketplace.json');
+  const plugin = readJson(root, 'trayo/.cursor-plugin/plugin.json');
+  const mcp = readJson(root, 'trayo/mcp.json');
+  const entries = Array.isArray(marketplace.plugins) ? marketplace.plugins : [];
+  const trayoEntries = entries.filter((entry) => entry?.name === 'trayo');
+
+  invariant(trayoEntries.length === 1, 'Cursor marketplace must contain exactly one Trayo plugin entry.');
+  const entry = trayoEntries[0];
+  invariant(entry.source === './trayo', 'Cursor marketplace Trayo source must be ./trayo.');
+  invariant(
+    entry.version === claudeEntry.version && entry.description === claudeEntry.description,
+    'Cursor marketplace entry must match the Claude marketplace entry version and description.',
+  );
+  for (const field of ['name', 'version', 'description', 'license', 'repository']) {
+    invariant(
+      plugin[field] === claudePlugin[field],
+      `Cursor plugin ${field} must match the Claude plugin manifest.`,
+    );
+  }
+  invariant(plugin.variables === undefined, 'Cursor plugin must not declare credential variables.');
+  invariant(isPluginSvg(root, plugin.logo), 'Cursor plugin logo must be an SVG file inside trayo/.');
+
+  const server = mcp?.mcpServers?.trayo;
+  invariant(
+    server?.url === 'https://api.trayo.ai/v1/mcp' && Object.keys(mcp.mcpServers).length === 1,
+    'Cursor mcp.json must declare only the Trayo server at the public production endpoint.',
+  );
+  invariant(
+    Object.keys(server).every((key) => key === 'url' || key === 'type')
+      && !readFileSync(path.join(root, 'trayo/mcp.json'), 'utf8').includes('${'),
+    'Cursor mcp.json must sign in with OAuth, without headers, auth, env, or placeholders.',
+  );
+}
+
 const forbiddenContent = [
   { name: 'unapproved repository reference', pattern: /\btrayoai\/(?!(?:trayo-plugin|ui)(?=[^a-z0-9._-]|$))[a-z0-9._-]+\b/i },
   { name: 'private key material', pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
@@ -49,7 +98,7 @@ function validatePublicFiles(root) {
     }
   }
 
-  for (const relativePath of ['README.md', '.claude-plugin', 'trayo']) visit(relativePath);
+  for (const relativePath of ['README.md', '.claude-plugin', '.cursor-plugin', 'trayo']) visit(relativePath);
 }
 
 export function validatePlugin(root = process.cwd()) {
@@ -79,7 +128,21 @@ export function validatePlugin(root = process.cwd()) {
     mcp?.mcpServers?.trayo?.url === 'https://api.trayo.ai/v1/mcp',
     'Trayo MCP server must use the public production endpoint.',
   );
+  invariant(
+    mcp.mcpServers.trayo.headers === undefined && plugin.userConfig === undefined,
+    'Trayo MCP server must sign in with OAuth, without static headers or plugin credentials.',
+  );
+  invariant(
+    typeof plugin.license === 'string' && plugin.license.length > 0 && isFile(root, 'trayo/LICENSE'),
+    'Plugin must set license in plugin.json and include trayo/LICENSE.',
+  );
+  invariant(
+    typeof plugin.privacyPolicyUrl === 'string' && plugin.privacyPolicyUrl.startsWith('https://'),
+    'Plugin must set privacyPolicyUrl to an https:// URL.',
+  );
+  invariant(isPluginSvg(root, plugin.icon), 'Plugin icon must be an SVG file inside trayo/.');
 
+  validateCursorPlugin(root, marketplacePlugin, plugin);
   validatePublicFiles(root);
 
   return plugin.version;

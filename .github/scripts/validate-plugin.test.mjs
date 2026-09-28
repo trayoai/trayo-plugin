@@ -30,14 +30,36 @@ function createFixture(overrides = {}) {
     name: 'trayo',
     version: overrides.pluginVersion ?? '1.2.3',
     repository: overrides.repository ?? 'https://github.com/trayoai/trayo-plugin',
+    license: 'MIT',
+    privacyPolicyUrl: 'https://www.trayo.ai/privacy-policy/',
+    icon: './.claude-plugin/icon.svg',
+    ...overrides.plugin,
   });
   writeJson(root, 'trayo/.mcp.json', {
     mcpServers: {
-      trayo: { url: overrides.mcpUrl ?? 'https://api.trayo.ai/v1/mcp' },
+      trayo: { url: overrides.mcpUrl ?? 'https://api.trayo.ai/v1/mcp', ...overrides.mcpServer },
     },
+  });
+  writeJson(root, '.cursor-plugin/marketplace.json', {
+    name: 'trayo-plugins',
+    owner: { name: 'Trayo' },
+    plugins: [{ name: 'trayo', source: './trayo', version: '1.2.3', ...overrides.cursorEntry }],
+  });
+  writeJson(root, 'trayo/.cursor-plugin/plugin.json', {
+    name: 'trayo',
+    version: '1.2.3',
+    repository: overrides.repository ?? 'https://github.com/trayoai/trayo-plugin',
+    license: 'MIT',
+    logo: '.claude-plugin/icon.svg',
+    ...overrides.cursorPlugin,
+  });
+  writeJson(root, 'trayo/mcp.json', overrides.cursorMcp ?? {
+    mcpServers: { trayo: { url: 'https://api.trayo.ai/v1/mcp', ...overrides.cursorMcpServer } },
   });
   writeFileSync(path.join(root, 'README.md'), '# Public plugin\n');
   writeFileSync(path.join(root, 'trayo', 'README.md'), '# Trayo\n');
+  writeFileSync(path.join(root, 'trayo', 'LICENSE'), 'MIT License\n');
+  writeFileSync(path.join(root, 'trayo', '.claude-plugin', 'icon.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>\n');
 
   return root;
 }
@@ -67,6 +89,103 @@ test('rejects non-public repository and MCP endpoints', async (context) => {
 
     assert.throws(() => validatePlugin(root), /public production endpoint/);
   });
+});
+
+test('requires OAuth sign-in instead of bundled credentials', async (context) => {
+  for (const [name, overrides] of [
+    ['static header', { mcpServer: { headers: { Authorization: 'Bearer ${user_config.api_key}' } } }],
+    ['plugin credential', { plugin: { userConfig: { api_key: { type: 'string', sensitive: true } } } }],
+  ]) {
+    await context.test(name, (childContext) => {
+      const root = createFixture(overrides);
+      childContext.after(() => rmSync(root, { recursive: true, force: true }));
+      assert.throws(() => validatePlugin(root), /must sign in with OAuth/);
+    });
+  }
+});
+
+test('requires a declared license and a LICENSE file in the plugin folder', async (context) => {
+  await context.test('license field', (childContext) => {
+    const root = createFixture({ plugin: { license: undefined } });
+    childContext.after(() => rmSync(root, { recursive: true, force: true }));
+    assert.throws(() => validatePlugin(root), /must set license/);
+  });
+
+  await context.test('LICENSE file', (childContext) => {
+    const root = createFixture();
+    childContext.after(() => rmSync(root, { recursive: true, force: true }));
+    rmSync(path.join(root, 'trayo', 'LICENSE'));
+    assert.throws(() => validatePlugin(root), /include trayo\/LICENSE/);
+  });
+});
+
+test('requires an https privacy policy URL and an SVG icon inside the plugin', async (context) => {
+  for (const [name, overrides, message] of [
+    ['missing privacy policy', { plugin: { privacyPolicyUrl: undefined } }, /privacyPolicyUrl/],
+    ['http privacy policy', { plugin: { privacyPolicyUrl: 'http://www.trayo.ai/privacy-policy/' } }, /privacyPolicyUrl/],
+    ['missing icon field', { plugin: { icon: undefined } }, /icon must be an SVG file/],
+    ['missing icon file', { plugin: { icon: './.claude-plugin/missing.svg' } }, /icon must be an SVG file/],
+    ['icon outside the plugin', { plugin: { icon: '../README.md' } }, /icon must be an SVG file/],
+  ]) {
+    await context.test(name, (childContext) => {
+      const root = createFixture(overrides);
+      childContext.after(() => rmSync(root, { recursive: true, force: true }));
+      assert.throws(() => validatePlugin(root), message);
+    });
+  }
+});
+
+test('keeps the Cursor manifests in sync with the Claude manifests', async (context) => {
+  for (const [name, overrides, message] of [
+    ['plugin name', { cursorPlugin: { name: 'trayo-cursor' } }, /Cursor plugin name must match/],
+    ['plugin version', { cursorPlugin: { version: '1.2.4' } }, /Cursor plugin version must match/],
+    ['plugin description', { cursorPlugin: { description: 'Something else' } }, /Cursor plugin description must match/],
+    ['plugin license', { cursorPlugin: { license: 'Apache-2.0' } }, /Cursor plugin license must match/],
+    ['marketplace version', { cursorEntry: { version: '1.2.4' } }, /Cursor marketplace entry must match/],
+    ['marketplace source', { cursorEntry: { source: './other' } }, /Cursor marketplace Trayo source/],
+    ['logo file', { cursorPlugin: { logo: 'assets/missing.svg' } }, /Cursor plugin logo must be an SVG/],
+    ['logo outside the plugin', { cursorPlugin: { logo: '../README.md' } }, /Cursor plugin logo must be an SVG/],
+    ['credential variables', { cursorPlugin: { variables: { type: 'object', properties: {} } } }, /credential variables/],
+  ]) {
+    await context.test(name, (childContext) => {
+      const root = createFixture(overrides);
+      childContext.after(() => rmSync(root, { recursive: true, force: true }));
+      assert.throws(() => validatePlugin(root), message);
+    });
+  }
+
+  await context.test('missing Cursor marketplace', (childContext) => {
+    const root = createFixture();
+    childContext.after(() => rmSync(root, { recursive: true, force: true }));
+    rmSync(path.join(root, '.cursor-plugin'), { recursive: true });
+    assert.throws(() => validatePlugin(root), /Could not read \.cursor-plugin\/marketplace\.json/);
+  });
+});
+
+test('requires the Cursor MCP server to sign in with OAuth', async (context) => {
+  for (const [name, overrides, message] of [
+    ['static header', { cursorMcpServer: { headers: { Authorization: 'Bearer ${API_TOKEN}' } } }, /without headers/],
+    ['static OAuth client', { cursorMcpServer: { auth: { CLIENT_ID: 'client' } } }, /without headers/],
+    ['environment', { cursorMcpServer: { env: { TOKEN: 'value' } } }, /without headers/],
+    ['other endpoint', { cursorMcpServer: { url: 'https://example.com/mcp' } }, /public production endpoint/],
+    [
+      'extra server',
+      { cursorMcp: { mcpServers: { trayo: { url: 'https://api.trayo.ai/v1/mcp' }, other: { url: 'https://example.com/mcp' } } } },
+      /only the Trayo server/,
+    ],
+  ]) {
+    await context.test(name, (childContext) => {
+      const root = createFixture(overrides);
+      childContext.after(() => rmSync(root, { recursive: true, force: true }));
+      assert.throws(() => validatePlugin(root), message);
+    });
+  }
+});
+
+test('scans the Cursor marketplace for private references', (context) => {
+  const root = createFixture({ cursorEntry: { homepage: 'https://github.com/trayoai/example-repo' } });
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  assert.throws(() => validatePlugin(root), /unapproved repository reference: \.cursor-plugin/);
 });
 
 test('rejects private references and credential markers before release', async (context) => {
@@ -188,20 +307,36 @@ test('recent-movers skill explains bounded and sampled results', () => {
   assert.doesNotMatch(body, /get fresher rows|send it again, narrower|thorough answer to who left/i);
 });
 
-test('strict Claude setup uses the public MCP endpoint and an environment variable', () => {
+test('strict Claude setup matches the bundled OAuth server entry', () => {
   const summary = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
   const guide = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
+  const bundled = JSON.parse(readFileSync(path.join(repoRoot, 'trayo', '.mcp.json'), 'utf8'));
   assert.match(summary, /--strict-mcp-config/);
   assert.match(summary, /trayo\/README\.md/);
-  const section = guide.split('### Claude Code with `--strict-mcp-config`')[1]?.split('## API-key plugin: Claude Cowork')[0];
+  const section = guide.split('### Claude Code with `--strict-mcp-config`')[1]?.split('\n### ')[0];
   assert.ok(section);
   const config = JSON.parse(section.match(/```json\s*([\s\S]*?)```/)?.[1] ?? '{}');
-  assert.deepEqual(config.mcpServers?.trayo, {
-    type: 'http',
-    url: 'https://api.trayo.ai/v1/mcp',
-    headers: { 'X-API-Key': '${TRAYO_API_KEY}' },
-    alwaysLoad: true,
-    timeout: 120000,
-  });
-  assert.match(section, /Do not pass the plugin's own `\.mcp\.json`/);
+  assert.deepEqual(config.mcpServers?.trayo, bundled.mcpServers.trayo);
+  assert.equal(config.mcpServers.trayo.headers, undefined);
+  assert.match(section, /\/mcp/);
+});
+
+test('setup guides use OAuth sign-in and never read a key from the environment', () => {
+  const summary = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
+  const guide = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
+  for (const text of [summary, guide]) {
+    assert.match(text, /sign in with your Trayo account in the browser/i);
+    assert.doesNotMatch(text, /TRAYO_API_KEY|--bearer-token-env-var|user_config|\/plugin configure/);
+  }
+});
+
+test('plugin files never read a credential from the environment', () => {
+  const files = [
+    path.join('trayo', 'README.md'),
+    ...readdirSync(path.join(repoRoot, 'trayo', 'skills')).map((name) => path.join('trayo', 'skills', name, 'SKILL.md')),
+  ];
+  for (const file of files) {
+    const body = readFileSync(path.join(repoRoot, file), 'utf8');
+    assert.doesNotMatch(body, /\$\{?[A-Z][A-Z0-9_]*\}?|Authorization: Bearer|TRAYO_API_KEY/, file);
+  }
 });

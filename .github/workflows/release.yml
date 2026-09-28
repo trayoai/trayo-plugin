@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - ".claude-plugin/**"
+      - ".cursor-plugin/**"
       - "README.md"
       - "trayo/**"
   workflow_dispatch:
@@ -54,7 +55,7 @@ jobs:
 
           if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
             tagged_commit="$(git rev-list -n 1 "$tag")"
-            if ! git diff --quiet "$tag" "$GITHUB_SHA" -- .claude-plugin README.md trayo; then
+            if ! git diff --quiet "$tag" "$GITHUB_SHA" -- .claude-plugin .cursor-plugin README.md trayo; then
               echo "Tag $tag already points to different plugin content at $tagged_commit." >&2
               exit 1
             fi

@@ -1,7 +1,7 @@
 {
   "name": "trayo-plugins",
-  "owner": { "name": "Trayo", "url": "https://trayo.ai" },
-  "description": "Agent plugins published by Trayo.",
+  "owner": { "name": "Trayo" },
+  "metadata": { "description": "Agent plugins published by Trayo." },
   "plugins": [
     {
       "name": "trayo",

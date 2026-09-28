@@ -1,51 +1,24 @@
 # Trayo plugin
 
-Use Trayo from Claude Code, Claude Cowork, Codex, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with twelve skills: build an app, onboard a new workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, monitor accounts, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
+Use Trayo from Claude Code, Claude Cowork, Codex, Cursor, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with twelve skills: build an app, onboard a new workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, monitor accounts, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
 
-Every client connects to `https://api.trayo.ai/v1/mcp`. OAuth clients can sign in with Trayo and inherit
-their current workspace permissions. Workspace API keys from **Admin → API keys** remain supported.
+You sign in with your Trayo account in the browser the first time a Trayo tool is used. The connection uses your own workspace permissions. There is no API key to paste, and the plugin stores no credentials.
 
-## Connect with OAuth
+## What the plugin runs, sends, and fetches
 
-Use `https://api.trayo.ai/v1/mcp` with the client's browser sign-in flow. Leave static
-Authorization / X-API-Key headers and client-secret fields empty for an OAuth connection.
+- **One remote MCP server.** The plugin adds a server named `trayo` at `https://api.trayo.ai/v1/mcp` (streamable HTTP over HTTPS). Claude clients read it from `.mcp.json` and Cursor from `mcp.json`; both declare the same server with no credentials. It runs no local code: no hooks, no scripts, and no local server process.
+- **OAuth sign-in.** The server requires OAuth 2.0 authorization. Your client opens a Trayo sign-in page in your browser, you approve access to a workspace, and the client stores and refreshes the access token. The plugin itself contains no key, token, or secret.
+- **What is sent to Trayo.** Each tool call sends its arguments to the Trayo MCP server over HTTPS, for example company names, websites and professional profile URLs, search criteria, signal definitions, and the IDs of accounts, people and lists in your workspace. Write tools change your workspace (importing accounts, adding people, saving lists and signals, starting discovery), and contact lookups draw on your workspace's lookup allowance.
+- **What comes back.** Company, people, contact, signal, and event data from your workspace and from Trayo's company and people data. A large result can come back as a preview plus a time-limited download link that the agent fetches in code when you want the complete result.
+- **Skills.** Twelve skill instruction files that tell the agent which Trayo tools to call and in what order. Several point the agent to Trayo's public API documentation at `https://api.trayo.ai` when you want a REST script. `/trayo:build-app` also reads the public Trayo GTM UI guide at `https://ui.trayo.ai` and, when you ask it to build an app, copies the public `trayoai/ui` source from GitHub into your project with `npx degit`.
+
+## Connect
+
+Every client connects to `https://api.trayo.ai/v1/mcp` and signs in with Trayo over OAuth. Leave static
+Authorization / X-API-Key headers and client-secret fields empty for an OAuth connection. When your account
+belongs to more than one workspace, choose one on the consent page; the connection stays pinned to that choice.
 
 ### Claude Code
-
-```bash
-claude mcp add --transport http trayo https://api.trayo.ai/v1/mcp
-```
-
-Run `/mcp`, select **trayo**, and authenticate in the browser.
-
-### Cowork / Claude Desktop
-
-Add a custom connector named **Trayo** with `https://api.trayo.ai/v1/mcp`, then use its
-OAuth sign-in flow. Sign in to Trayo and approve the workspace shown on the consent page.
-The connection uses your own permissions; no shared API key is needed.
-
-### Codex
-
-```bash
-codex mcp add trayo --url https://api.trayo.ai/v1/mcp
-codex mcp login trayo
-```
-
-### ChatGPT
-
-In developer mode, add a custom MCP app with `https://api.trayo.ai/v1/mcp` and OAuth authentication.
-Leave client ID and client secret blank so ChatGPT uses discovery and automatic client registration.
-Connect the app, sign in to Trayo, and approve access. Your workspace's app policy may require an admin
-before custom apps are available.
-
-Call `trayo_whoami` to confirm the workspace, user and effective permissions. Choose the workspace on
-the consent page when your account belongs to more than one. The connection stays pinned to that choice. Permission changes take effect on the
-next request; removing membership revokes access. Workspace plan and usage limits still apply.
-
-The packaged plugin configuration below uses an API key. Use the direct remote-server setup above
-for OAuth.
-
-## API-key plugin: Claude Code
 
 Add the public Trayo marketplace and install the plugin:
 
@@ -56,18 +29,20 @@ claude plugin install trayo@trayo-plugins
 
 Then:
 
-1. Run `/plugin configure trayo@trayo-plugins`.
-2. Enter the key in the masked field.
-3. Start a new Claude Code session.
-4. Run `/mcp`, then ask Claude to call `trayo_whoami`.
+1. Start a new Claude Code session.
+2. Ask for something that uses Trayo. The first time Claude needs a Trayo tool, sign in with your Trayo account in the browser and approve access.
+3. To sign in ahead of time, or if Trayo shows as needing authentication, run `/mcp`, select the Trayo server, and choose **Authenticate**.
+4. Ask Claude to call `trayo_whoami`.
 
-The `trayo` server should be connected with 29 tools. The key is stored as sensitive plugin configuration and is never part of the plugin or conversation.
+The `trayo` server should be connected with 29 tools. Claude Code connects only once to servers that share a
+URL, so if you also added Trayo as a connector in Claude, you get one set of Trayo tools.
 
 ### Claude Code with `--strict-mcp-config`
 
 Claude Code's strict flag loads MCP servers only from `--mcp-config`. It ignores the server bundled
-with the installed plugin, so `/plugin configure` by itself will not connect Trayo in that session.
-Add Trayo to the JSON file you pass to `--mcp-config` (or merge this entry into your existing file):
+with the installed plugin, so installing the plugin by itself will not connect Trayo in that session.
+Add Trayo to the JSON file you pass to `--mcp-config` (or merge this entry into your existing file).
+It is the same entry the plugin bundles:
 
 ```json
 {
@@ -75,7 +50,6 @@ Add Trayo to the JSON file you pass to `--mcp-config` (or merge this entry into 
     "trayo": {
       "type": "http",
       "url": "https://api.trayo.ai/v1/mcp",
-      "headers": { "X-API-Key": "${TRAYO_API_KEY}" },
       "alwaysLoad": true,
       "timeout": 120000
     }
@@ -83,61 +57,90 @@ Add Trayo to the JSON file you pass to `--mcp-config` (or merge this entry into 
 }
 ```
 
-Set `TRAYO_API_KEY` for the Claude process through your secret setup, then run
-`claude --strict-mcp-config --mcp-config /path/to/mcp.json`. The file contains only a variable
-reference, not the key. In an interactive session, check `/mcp` and call `trayo_whoami`; in a
+Run `claude --strict-mcp-config --mcp-config /path/to/mcp.json`, then run `/mcp`, select **trayo**,
+sign in in the browser, and call `trayo_whoami`. A non-interactive `-p` run cannot open the browser
+sign-in, so complete it first in an interactive session started with the same flags. In a
 `-p --output-format stream-json` run, check the `system/init` event's `mcp_servers` and
-`mcp_server_errors`. Do not pass the plugin's own `.mcp.json` as this file: its
-`${user_config.api_key}` placeholder is for plugin configuration, not this variable-based
-setup. If your existing strict config lists other servers, keep them in the same file.
-For an interactive OAuth connection, omit `headers` and sign in through `/mcp` instead. If `/mcp`
-shows Trayo as disabled, re-enable it there; the strict flag does not reset a disabled-server choice.
+`mcp_server_errors`. If your existing strict config lists other servers, keep them in the same file.
+If `/mcp` shows Trayo as disabled, re-enable it there; the strict flag does not reset a disabled-server choice.
 
-## API-key plugin: Claude Cowork and Desktop
+### Claude Cowork and Claude Desktop
 
 1. Open **Customize → Plugins**.
 2. Select **+ → Add marketplace → Add from repository**.
 3. Add `https://github.com/trayoai/trayo-plugin`.
 4. Install **Trayo** to add its twelve skills.
-5. Add a custom connector named **Trayo** with URL `https://api.trayo.ai/v1/mcp`.
-6. Choose **No sign-in**, then add the request header `x-api-key` with your workspace API key as its value.
+5. If Trayo is not connected yet, add a custom connector named **Trayo** with URL `https://api.trayo.ai/v1/mcp` and use its sign-in flow.
+6. Sign in to Trayo and approve the workspace shown on the consent page.
 7. Start a new task and ask Claude to call `trayo_whoami`.
 
 Your organization's plugin policy may require an administrator to approve the marketplace.
 
-## API-key plugin: Codex
+### Codex
 
-Install the marketplace and skills, then register Trayo through Codex's native MCP configuration:
+Install the marketplace and skills, then register Trayo through Codex's native MCP configuration and sign in:
 
 ```bash
 codex plugin marketplace add trayoai/trayo-plugin
 codex plugin add trayo@trayo-plugins
-codex mcp add trayo --url https://api.trayo.ai/v1/mcp --bearer-token-env-var TRAYO_API_KEY
+codex mcp add trayo --url https://api.trayo.ai/v1/mcp
+codex mcp login trayo
 ```
 
-Make `TRAYO_API_KEY` available through your existing secret setup. For the Codex app, you can add `TRAYO_API_KEY=<key>` to `~/.codex/.env` yourself, set that file to owner-only access with `chmod 600 ~/.codex/.env`, and restart Codex. Do not paste the key into an agent conversation.
-
-Check the installation with:
+`codex mcp login` opens the Trayo sign-in in your browser. Restart Codex, then check the installation with:
 
 ```bash
 codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.5.14. The MCP result should show the fixed URL and `TRAYO_API_KEY` as its bearer token variable. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.0. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
-## Other MCP clients
+### Cursor
 
-Add a streamable HTTP MCP server with:
+Once Trayo is listed in the [Cursor Marketplace](https://cursor.com/marketplace), install it from
+**Customize** in Cursor. The plugin adds the Trayo MCP server and the twelve skills, and Cursor asks
+you to sign in with your Trayo account in the browser.
 
-- URL: `https://api.trayo.ai/v1/mcp`
-- Header: `X-API-Key: <key>` or `Authorization: Bearer <key>`
+Until then, add the server to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project) and sign in
+when Cursor asks:
 
-The twelve skills are included for clients that support this plugin marketplace format. Call `trayo_whoami` after setup to verify the connection and key.
+```json
+{
+  "mcpServers": {
+    "trayo": { "url": "https://api.trayo.ai/v1/mcp" }
+  }
+}
+```
 
-## Your key
+In Cursor, run a skill as `/find-stakeholders` and so on, without the `trayo:` prefix. Then ask the
+agent to call `trayo_whoami`.
 
-The key needs the scopes listed under Notes. Keep it in the client's masked secret field or secret file; never add it to this repository or paste it into an agent conversation.
+### ChatGPT
+
+In developer mode, add a custom MCP app with `https://api.trayo.ai/v1/mcp` and OAuth authentication.
+Leave client ID and client secret blank so ChatGPT uses discovery and automatic client registration.
+Connect the app, sign in to Trayo, and approve access. Your workspace's app policy may require an admin
+before custom apps are available.
+
+### Other MCP clients
+
+Add a streamable HTTP MCP server with URL `https://api.trayo.ai/v1/mcp` and OAuth authentication. Leave
+client ID and client secret blank; the server supports discovery and automatic client registration.
+
+A client that cannot complete a browser sign-in can use a workspace API key from **Admin → API keys**
+instead, entered in the client's own `X-API-Key` header field. Keep the key in the client's masked secret
+field or secret store; never add it to this repository or paste it into an agent conversation. The key
+needs the scopes listed under Notes.
+
+The twelve skills are included for clients that support this plugin marketplace format. Call `trayo_whoami`
+after setup to verify the connection.
+
+## Permissions
+
+Over OAuth, the tools act with your own Trayo permissions in the workspace you approved. Call
+`trayo_whoami` to see the workspace, user and effective permissions. Permission changes take effect on
+the next request; removing your membership revokes access. Workspace plan and usage limits still apply.
 
 ## What you get
 
@@ -147,7 +150,7 @@ The key needs the scopes listed under Notes. Keep it in the client's masked secr
 
 ## Build apps with Trayo
 
-Use `/trayo:build-app` when building a GTM app, dashboard, or internal tool powered by Trayo. **New app interfaces must use [Trayo GTM UI](https://ui.trayo.ai) as their default UI foundation.** Read [its agent guide](https://ui.trayo.ai/llms.txt) before writing UI code; if unavailable, read the public [README](https://github.com/trayoai/ui/blob/main/README.md) and [AGENTS.md](https://github.com/trayoai/ui/blob/main/AGENTS.md). Honor an explicit request for another stack or design system, and preserve the established system when extending an existing app.
+Use `/trayo:build-app` when building a GTM app, dashboard, or internal tool powered by Trayo. **New app interfaces must use [Trayo GTM UI](https://ui.trayo.ai) as their default UI foundation.** Read [its agent guide](https://ui.trayo.ai/llms.txt) before writing UI code; if unavailable, read the public [README](https://github.com/trayoai/ui/blob/main/README.md) and [agent instructions](https://github.com/trayoai/ui/blob/main/AGENTS.md). Honor an explicit request for another stack or design system, and preserve the established system when extending an existing app.
 
 The skill covers source vendoring, the provided people and company components, app layout, tables, and API integration. Keep API keys in the app's backend. The UI kit provides presentation components, not API authentication or a data client; the Trayo API works independently of it.
 
@@ -215,5 +218,5 @@ Market research. Outbound, CRM push and routing — anything that acts on what y
 
 ## Notes
 
-- The key needs the scopes of the routes the tools wrap: `accounts:read`, `accounts:write`, `people:read`, `people:write`, `people:enrich_email`, `people:enrich_phone`, `settings:read`, `settings:write`, `events:read`, `events:write`, `research:trigger`. The two enrichment scopes are separate on purpose: a key can be allowed to find email addresses and refused phone numbers.
+- A workspace API key used instead of OAuth needs the scopes of the routes the tools wrap: `accounts:read`, `accounts:write`, `people:read`, `people:write`, `people:enrich_email`, `people:enrich_phone`, `settings:read`, `settings:write`, `events:read`, `events:write`, `research:trigger`. The two enrichment scopes are separate on purpose: a key can be allowed to find email addresses and refused phone numbers.
 - Full API reference: [openapi.json](https://api.trayo.ai/v1/openapi.json), with [llms.txt](https://api.trayo.ai/llms.txt) as the agent-facing summary.
