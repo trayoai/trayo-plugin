@@ -42,5 +42,5 @@ By now you must have: shown the candidates and searched again until the user app
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: `trayo_add_to_list` `{ name, members: [{ accountId, via: 'find' }] }`, then read `skipped`, which holds the rows already on it. Over 200 members takes several calls: send `name` on the first one only, then the `list.id` it answers with as `listId`, or two by-name calls race and split the set across two lists with the same name. For the people at these accounts, skill `find-stakeholders`.
-- Re-run it on your cadence: recipe `exact-prospecting` (criteria) or `lookalike-companies` (examples) at `https://api.trayo.ai/v1/recipes`, or `POST /v1/accounts/batch` to push a list of your own.
+- Run it again on request: recipe `exact-prospecting` (criteria) or `lookalike-companies` (examples) at `https://api.trayo.ai/v1/recipes`, or `POST /v1/accounts/batch` to push a list of your own.
 - Hand it off: a CSV written from the rows you hold.

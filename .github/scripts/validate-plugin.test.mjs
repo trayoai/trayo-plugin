@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, readFileSync, readdirSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { lstatSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
-import { validatePlugin } from './validate-plugin.mjs';
+import { publishedPaths, validatePlugin } from './validate-plugin.mjs';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(dirname, '..', '..');
@@ -346,7 +346,7 @@ test('every checked-in data workflow skill has a complete final handoff', () => 
     assert.match(finish, /^Hand back\b/m, name);
     assert.match(finish, /^By now you must have\b/m, name);
     assert.match(finish, /wait for the user's pick/, name);
-    const exits = ['- Keep it in Trayo:', '- Re-run it on your cadence:', '- Hand it off:'];
+    const exits = ['- Keep it in Trayo:', '- Run it again on request:', '- Hand it off:'];
     const positions = exits.map((exit) => finish.indexOf(exit));
     assert.ok(positions.every((position) => position >= 0), `${name} is missing a handoff option`);
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b), name);
@@ -365,8 +365,42 @@ test('plugin guides do not promise a fixed tool count', () => {
   }
 });
 
-test('monitoring examples use a backfill run or a saved account', () => {
-  const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'monitor-accounts', 'SKILL.md'), 'utf8');
+test('published plugin does not present Trayo-owned monitoring or recurring discovery', () => {
+  const forbidden = /\bmonitor(?:ing|ed|s)?\b|\bstanding[\s-]+(?:scan|schedule)\b|\bTrayo\s+(?:automatically|periodically)\s+(?:runs?|starts?|checks?|scans?)\b|\bTrayo\s+(?:runs?|starts?)\s+(?:discovery|scans?|checks?)\s+automatically\b/i;
+
+  function visit(relativePath) {
+    assert.doesNotMatch(relativePath, forbidden, `Published path: ${relativePath}`);
+    const absolutePath = path.join(repoRoot, relativePath);
+    if (lstatSync(absolutePath).isDirectory()) {
+      for (const entry of readdirSync(absolutePath)) visit(path.join(relativePath, entry));
+      return;
+    }
+    assert.doesNotMatch(readFileSync(absolutePath, 'utf8'), forbidden, relativePath);
+  }
+
+  for (const relativePath of publishedPaths) visit(relativePath);
+});
+
+test('account event checks support caller-owned scheduling after approval', () => {
+  const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'check-account-events', 'SKILL.md'), 'utf8');
+  assert.match(body, /^name: check-account-events$/m);
+  assert.match(body, /scheduler they approved runs a REST script/);
+  assert.match(body, /Each scheduled REST execution must call `POST \/v1\/discoveries`/);
+  assert.match(body, /scope and frequency they approve/);
+  assert.match(body, /reuse the saved account IDs and signal keys; do not repeat account import or signal creation/);
+  assert.match(body, /Give each intended discovery run a new `Idempotency-Key`/);
+  assert.match(body, /Reusing it for a later scheduled execution returns the earlier run/);
+  assert.match(body, /Start an explicit discovery for every saved account and all selected signals/);
+  assert.match(body, /recipe `discover-account-events`/);
+
+  const readme = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
+  assert.match(readme, /schedule that script in a system you control/);
+  assert.match(readme, /new `Idempotency-Key` for each intended run/);
+  assert.match(readme, /In an API-only workspace, connecting MCP or saving accounts and signals does not start future discovery runs/);
+});
+
+test('account event examples use a backfill run or a saved account', () => {
+  const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'check-account-events', 'SKILL.md'), 'utf8');
   const examples = [...body.matchAll(/```json\s*([\s\S]*?)```/g)].map((match) => JSON.parse(match[1]));
   assert.equal(examples.length, 2);
   assert.equal(typeof examples[0].discoveryRunId, 'string');

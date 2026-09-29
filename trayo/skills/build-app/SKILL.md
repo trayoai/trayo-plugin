@@ -31,7 +31,7 @@ Honor an explicit request for a different stack or design system. When extending
 
 ## Connect the workflow
 
-Read the public [API summary](https://api.trayo.ai/llms.txt), [OpenAPI reference](https://api.trayo.ai/v1/openapi.json), and [REST recipes](https://api.trayo.ai/v1/recipes). Choose the recipe that matches the requested workflow, such as `exact-prospecting` for an account search or `monitor-accounts` for signal monitoring. Use documented routes, fields, pagination, and error handling; do not infer API contracts from UI component props.
+Read the public [API summary](https://api.trayo.ai/llms.txt), [OpenAPI reference](https://api.trayo.ai/v1/openapi.json), and [REST recipes](https://api.trayo.ai/v1/recipes). Choose the recipe that matches the requested workflow, such as `exact-prospecting` for an account search or `discover-account-events` for account discovery and event reads. Use documented routes, fields, pagination, and error handling; do not infer API contracts from UI component props.
 
 The kit does not provide a Trayo API client or authentication. Keep the workspace API key in backend secrets and call Trayo from the app's server. Never put it in browser code, browser storage, or a public build-time variable. An OAuth MCP connection does not provide a workspace API key; an existing MCP workspace API key can be reused on the app's backend.
 

@@ -22,5 +22,5 @@ By now you must have: checked `person.fullName` and `person.resolvedBy` before t
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: `trayo_add_people` with `{ fullName, title, linkedinUrl }`, then use the id from either `created` or `updated` with `trayo_add_to_list`; `updated` means the LinkedIn or email matched an existing person and the fields you sent were written. A name-only duplicate is skipped unchanged, so use its `existingId` only after confirming it is the same human. `reasonCode: "identity_conflict"` means LinkedIn and email identify different people; send the row again with only the identity that belongs to the person you mean. A row in `degraded` with `no_account` has no company behind it, and one with `no_identity` will be created again on a re-run. For their email address, skill `enrich-contacts`; for the company behind them, skill `research-account`.
-- Re-run it on your cadence: recipe `brief-before-outreach` at `https://api.trayo.ai/v1/recipes`; for several people at once, `trayo_research_person_batch` (step 6).
+- Run it again on request: recipe `brief-before-outreach` at `https://api.trayo.ai/v1/recipes`; for several people at once, `trayo_research_person_batch` (step 6).
 - Hand it off: the brief written to a file the user names.
