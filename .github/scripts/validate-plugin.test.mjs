@@ -385,7 +385,7 @@ test('account event checks support caller-owned scheduling after approval', () =
   const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'check-account-events', 'SKILL.md'), 'utf8');
   assert.match(body, /^name: check-account-events$/m);
   assert.match(body, /scheduler they approved runs a REST script/);
-  assert.match(body, /Each execution must call `POST \/v1\/discoveries`/);
+  assert.match(body, /Each scheduled REST execution must call `POST \/v1\/discoveries`/);
   assert.match(body, /scope and frequency they approve/);
   assert.match(body, /reuse the saved account IDs and signal keys; do not repeat account import or signal creation/);
   assert.match(body, /Give each intended discovery run a new `Idempotency-Key`/);

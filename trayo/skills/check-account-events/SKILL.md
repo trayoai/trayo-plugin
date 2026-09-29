@@ -7,7 +7,7 @@ description: Run discovery for named accounts or accounts that match a definitio
 
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.
 
-Start discovery for the account set the user asks to check, then read its events. Later checks can start when the user asks again or when a scheduler they approved runs a REST script. Each execution must call `POST /v1/discoveries`; in an API-only workspace, saving the list and signals does not start future runs.
+Start discovery for the account set the user asks to check, then read its events. Later checks can start when the user asks again or when a scheduler they approved runs a REST script. Each scheduled REST execution must call `POST /v1/discoveries`; in an API-only workspace, saving the list and signals does not start future runs.
 
 A settled run with no reported error does not prove that every saved account was searched. Report the events returned and any reported failures. Describe an empty digest as "no new events returned", rather than proof that nothing happened at those accounts. The checkpoint tracks successful reads, not verified scan coverage.
 
