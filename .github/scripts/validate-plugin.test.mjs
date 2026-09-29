@@ -387,12 +387,16 @@ test('account event checks support caller-owned scheduling after approval', () =
   assert.match(body, /scheduler they approved runs a REST script/);
   assert.match(body, /Each execution must call `POST \/v1\/discoveries`/);
   assert.match(body, /scope and frequency they approve/);
+  assert.match(body, /reuse the saved account IDs and signal keys; do not repeat account import or signal creation/);
+  assert.match(body, /Give each intended discovery run a new `Idempotency-Key`/);
+  assert.match(body, /Reusing it for a later scheduled execution returns the earlier run/);
   assert.match(body, /Start an explicit discovery for every saved account and all selected signals/);
   assert.match(body, /recipe `discover-account-events`/);
 
   const readme = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
   assert.match(readme, /schedule that script in a system you control/);
-  assert.match(readme, /Connecting MCP or saving accounts and signals does not start future discovery runs/);
+  assert.match(readme, /new `Idempotency-Key` for each intended run/);
+  assert.match(readme, /In an API-only workspace, connecting MCP or saving accounts and signals does not start future discovery runs/);
 });
 
 test('account event examples use a backfill run or a saved account', () => {

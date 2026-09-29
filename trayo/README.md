@@ -236,7 +236,7 @@ between the original preview and export.
 
 Market research. Outbound, CRM push and routing — anything that acts on what you found. Each discovery starts with an explicit tool or API call. For an output beyond a list — a CSV, a team-chat digest, a push into your CRM — the skills will help you write a script against the REST API these tools wrap.
 
-For repeated checks, schedule that script in a system you control. Each invocation calls `POST /v1/discoveries`, waits for `settledAt`, then reads the events; keep the API key on the job's backend. Connecting MCP or saving accounts and signals does not start future discovery runs.
+For repeated checks, schedule that script in a system you control. Each invocation calls `POST /v1/discoveries` with the saved account IDs and signal keys, waits for `settledAt`, then reads the events; keep the API key on the job's backend. Use a new `Idempotency-Key` for each intended run, reusing it only for retries. In an API-only workspace, connecting MCP or saving accounts and signals does not start future discovery runs.
 
 ## Notes
 
