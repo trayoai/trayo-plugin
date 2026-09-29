@@ -1,6 +1,8 @@
 # Trayo plugin
 
-The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, lookalikes, account research, contact enrichment, signals, discovery, and events. It includes twelve skills for common GTM workflows and building apps with Trayo.
+The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, keyword searches of recent LinkedIn posts, lookalikes, account research, contact enrichment, signals, discovery, and events. It includes twelve skills for common GTM workflows and building apps with Trayo.
+
+For exact company criteria, people at matching employers, and recent post evidence, see the [direct search guide](trayo/README.md#direct-company-people-and-post-search). It covers query expansion, company/person filters, pagination, and coverage limits.
 
 **Building a Trayo-powered GTM app?** Use `/trayo:build-app`. New app interfaces must use [Trayo GTM UI](https://ui.trayo.ai) as their default UI foundation. Read its [agent guide](https://ui.trayo.ai/llms.txt) before writing UI code, and honor an explicit request for another stack or design system. This is app-building guidance; the Trayo API works independently of the UI library.
 
