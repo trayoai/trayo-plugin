@@ -7,7 +7,7 @@ description: Run discovery for named accounts or accounts that match a definitio
 
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.
 
-Start discovery for the account set the user asks to check, then read its events. Run later checks only when the user requests them. Each later check needs a new explicit discovery request.
+Start discovery for the account set the user asks to check, then read its events. Later checks can start when the user asks again or when a scheduler they approved runs a REST script. Each execution must call `POST /v1/discoveries`; saving the list and signals does not start future runs in Trayo.
 
 A settled run with no reported error does not prove that every saved account was searched. Report the events returned and any reported failures. Describe an empty digest as "no new events returned", rather than proof that nothing happened at those accounts. The checkpoint tracks successful reads, not verified scan coverage.
 
@@ -19,7 +19,7 @@ A settled run with no reported error does not prove that every saved account was
    - For named accounts, call `trayo_import_accounts` with up to 200 `{ name, url, linkedinHandle }` rows. Use a URL with its scheme and include the LinkedIn company handle when known.
    - For a company definition, call `trayo_find_companies`. Follow `nextCursor` for a filters-only search. A `query` search returns one ranked page. Import the results using each row's `url` and read `droppedUnaddressable` before reporting a count.
    - Collect `created[].id` and every duplicate row's `existingId`. New accounts are assigned to the acting user. Duplicate imports do not change identity or assignment.
-   - Ask before the first backfill over more than 100 accounts. Keep the approved account set for later checks, but start each new discovery only after a new user request. Adding accounts or signals needs agreement.
+   - Ask before the first backfill over more than 100 accounts. Keep the approved account set for later checks. If the user wants repeated checks, help them run the REST sequence below from a scheduler they control, with the scope and frequency they approve. Adding accounts or signals needs agreement.
 4. Save these IDs with `trayo_add_to_list`, using account members and their `via` value. For more than 200 members, send `name` once, then use the returned `list.id` for later batches. Store `list.id` so later checks use the same account set.
 5. Create one signal per business event with `trayo_create_signal`. Keep the `signalKeys` for later checks. Use one discovery for all selected signals.
 
@@ -39,7 +39,7 @@ A settled run with no reported error does not prove that every saved account was
 6. Report `accountName`, `title`, `eventDate`, matched `signalKeys`, and `whyItMatters`. If `whyItMatters` is null, use `summary`. Include people and their `reasoning` when present — only a run started with `people: "add"` attaches them. Without it a `job_change` event still names the person who changed jobs; add them with `trayo_add_people` if the user wants them. Event `people` are already in the workspace: their `id` works directly in `trayo_add_to_list` and `trayo_enrich_emails`, so do not add them again with `trayo_add_people`; every email lookup draws on the workspace's allowance, which skill `enrich-contacts` states before spending. Do not infer an empty result from `eventsNew: 0`.
 7. After reading all pages and saving the digest, store the delivered event IDs to remove duplicates between checks. Store `lastCheckedAt = checkStartedAt` only when no reported failures or blocked accounts remain. If a read or digest save fails, keep the previous checkpoint too.
 
-## Later requested checks
+## Later checks
 
 1. Load the saved list with `trayo_get_list_members`, using `listId` and `kind: "account"`. If needed, find the saved list through `trayo_list_lists`. Read every member page before collecting the account IDs. Keep `listId` and `kind` on every page.
 2. Record a new `checkStartedAt` before discovery or event reads. Keep the previous `lastCheckedAt` unchanged during this check.
@@ -79,5 +79,5 @@ By now you must have: asked before the first backfill over more than 100 account
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: the list and signals are saved for another check you request. `trayo_list_lists` finds the list again.
-- Run it again on request: recipe `discover-account-events` at `https://api.trayo.ai/v1/recipes`, with an explicit discovery run followed by the `/v1/events` read.
+- Run it again on request: recipe `discover-account-events` at `https://api.trayo.ai/v1/recipes`, with an explicit discovery run followed by the `/v1/events` read. The user can also schedule that REST sequence in their own system.
 - Hand it off: the digest written to a file the user names, or a CSV of the events.

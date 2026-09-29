@@ -365,8 +365,8 @@ test('plugin guides do not promise a fixed tool count', () => {
   }
 });
 
-test('published plugin describes explicit discovery without monitoring or recurring discovery concepts', () => {
-  const forbidden = /\bmonitor(?:ing|ed|s)?\b|\bstanding[\s-]+(?:scan|schedule)\b|\b(?:automated?|automatic|recurring|scheduled|periodic)[\s-]+(?:account[\s-]+)?(?:discovery|coverage|scans?|checks?)\b|\bbackground[\s-]+(?:discovery|checks?|scans?)\b|\b(?:your|its|own|chosen) cadence\b|\bscheduled[\s-]+script\b|\bschedule in the calling agent\b/i;
+test('published plugin does not present Trayo-owned monitoring or recurring discovery', () => {
+  const forbidden = /\bmonitor(?:ing|ed|s)?\b|\bstanding[\s-]+(?:scan|schedule)\b|\bTrayo\s+(?:automatically|periodically)\s+(?:runs?|starts?|checks?|scans?)\b|\bTrayo\s+(?:runs?|starts?)\s+(?:discovery|scans?|checks?)\s+automatically\b/i;
 
   function visit(relativePath) {
     assert.doesNotMatch(relativePath, forbidden, `Published path: ${relativePath}`);
@@ -381,14 +381,18 @@ test('published plugin describes explicit discovery without monitoring or recurr
   for (const relativePath of publishedPaths) visit(relativePath);
 });
 
-test('account event checks require a user request before repeating discovery', () => {
+test('account event checks support caller-owned scheduling after approval', () => {
   const body = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'check-account-events', 'SKILL.md'), 'utf8');
   assert.match(body, /^name: check-account-events$/m);
-  assert.match(body, /Run later checks only when the user requests them/);
-  assert.match(body, /Each later check needs a new explicit discovery request/);
-  assert.match(body, /start each new discovery only after a new user request/);
+  assert.match(body, /scheduler they approved runs a REST script/);
+  assert.match(body, /Each execution must call `POST \/v1\/discoveries`/);
+  assert.match(body, /scope and frequency they approve/);
   assert.match(body, /Start an explicit discovery for every saved account and all selected signals/);
   assert.match(body, /recipe `discover-account-events`/);
+
+  const readme = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
+  assert.match(readme, /schedule that script in a system you control/);
+  assert.match(readme, /Connecting MCP or saving accounts and signals does not start future discovery runs/);
 });
 
 test('account event examples use a backfill run or a saved account', () => {
