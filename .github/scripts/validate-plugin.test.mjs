@@ -467,10 +467,15 @@ test('strict Claude setup matches the bundled OAuth server entry', () => {
   assert.match(section, /\/mcp/);
 });
 
-test('setup guides use OAuth sign-in and never read a key from the environment', () => {
+test('MCP setup guides use OAuth sign-in without environment credentials', () => {
   const summary = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
   const guide = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
-  for (const text of [summary, guide]) {
+  const sections = [
+    summary.split('## Claude Code\n')[1]?.split('## License\n')[0],
+    guide.split('## Connect\n')[1]?.split('## Permissions\n')[0],
+  ];
+  for (const text of sections) {
+    assert.ok(text, 'MCP setup section must be present');
     assert.match(text, /sign in with your Trayo account in the browser/i);
     assert.doesNotMatch(text, /TRAYO_API_KEY|--bearer-token-env-var|user_config|\/plugin configure/);
   }
@@ -493,7 +498,7 @@ test('Gemini CLI setup installs from this repository and signs in with /mcp auth
   }
 });
 
-test('plugin files never read a credential from the environment', () => {
+test('published instructions never interpolate credential environment values', () => {
   const files = [
     'GEMINI.md',
     path.join('trayo', 'README.md'),
@@ -501,6 +506,34 @@ test('plugin files never read a credential from the environment', () => {
   ];
   for (const file of files) {
     const body = readFileSync(path.join(repoRoot, file), 'utf8');
-    assert.doesNotMatch(body, /\$\{?[A-Z][A-Z0-9_]*\}?|Authorization: Bearer|TRAYO_API_KEY/, file);
+    assert.doesNotMatch(body, /\$\{?[A-Z][A-Z0-9_]*\}?/, file);
+  }
+});
+
+test('REST builds prompt for secure API key setup before API integration work', () => {
+  const skill = readFileSync(path.join(repoRoot, 'trayo', 'skills', 'build-app', 'SKILL.md'), 'utf8');
+  const keySetup = skill.split('## Set up the API key first\n')[1]?.split('\n## ')[0];
+  assert.ok(keySetup, 'API credential setup must be present');
+  assert.ok(skill.indexOf('## Set up the API key first') < skill.indexOf('## Build the interface'));
+  assert.match(keySetup, /app, script, or integration/);
+  assert.match(keySetup, /before writing API integration code or making authenticated REST requests/);
+  assert.match(keySetup, /reuse it without asking again/);
+  assert.match(keySetup, /https:\/\/app\.trayo\.ai\/user\/api-keys/);
+  assert.match(keySetup, /`TRAYO_API_KEY`.*backend secret store.*gitignored `\.env`/);
+  assert.match(keySetup, /Do not paste the key into this conversation/);
+  assert.match(keySetup, /Keep live REST calls pending/);
+  assert.match(keySetup, /GET https:\/\/api\.trayo\.ai\/v1\/whoami/);
+  assert.match(keySetup, /Never display the key or authentication header/);
+});
+
+test('plugin guides distinguish REST API key setup from MCP OAuth sign-in', () => {
+  for (const file of ['README.md', path.join('trayo', 'README.md'), 'GEMINI.md']) {
+    const body = readFileSync(path.join(repoRoot, file), 'utf8');
+    assert.match(body, /REST API/, file);
+    assert.match(body, /prompt[s]? (?:you to create|for API key setup)/, file);
+    assert.match(body, /https:\/\/app\.trayo\.ai\/user\/api-keys/, file);
+    assert.match(body, /`TRAYO_API_KEY`/, file);
+    assert.match(body, /OAuth MCP sign-in does not supply|MCP OAuth sign-in does not provide/, file);
+    assert.doesNotMatch(body, /never ask for one/i, file);
   }
 });

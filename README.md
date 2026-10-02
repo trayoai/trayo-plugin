@@ -8,6 +8,8 @@ For exact company criteria, people at matching employers, and recent post eviden
 
 The plugin connects to the Trayo MCP server at `https://api.trayo.ai/v1/mcp`. You sign in with your Trayo account in the browser; there is no API key to paste.
 
+**Building with the REST API?** Use `/trayo:build-app` for apps, scripts, and integrations. At the start of the build, the agent prompts you to create a workspace API key on the [API keys page](https://app.trayo.ai/user/api-keys) and configure it as `TRAYO_API_KEY` in your backend secret store or a local gitignored `.env` file. An already configured project key can be reused. Keep the key out of chat; MCP OAuth sign-in does not provide REST API credentials.
+
 ## Claude Code
 
 ```bash

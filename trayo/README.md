@@ -95,7 +95,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.4. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.6. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 
@@ -170,13 +170,15 @@ the next request; removing your membership revokes access. Workspace plan and us
 
 ## Build apps with Trayo
 
-Use `/trayo:build-app` when building a GTM app, dashboard, or internal tool powered by Trayo. **New app interfaces must use [Trayo GTM UI](https://ui.trayo.ai) as their default UI foundation.** Read [its agent guide](https://ui.trayo.ai/llms.txt) before writing UI code; if unavailable, read the public [README](https://github.com/trayoai/ui/blob/main/README.md) and [agent instructions](https://github.com/trayoai/ui/blob/main/AGENTS.md). Honor an explicit request for another stack or design system, and preserve the established system when extending an existing app.
+Use `/trayo:build-app` when building a GTM app, dashboard, internal tool, REST script, or integration powered by Trayo. At build start, the agent must prompt for API key setup if this project does not already have a workspace API key configured: create one on the [API keys page](https://app.trayo.ai/user/api-keys), then configure `TRAYO_API_KEY` in the backend secret store or a local gitignored `.env` file. Do not paste it into the conversation. OAuth MCP sign-in does not supply this key. The agent can continue work that does not need credentials while you configure it, and confirms REST authentication with a backend or script call to `GET /v1/whoami` before live API work.
+
+**New app interfaces must use [Trayo GTM UI](https://ui.trayo.ai) as their default UI foundation.** Read [its agent guide](https://ui.trayo.ai/llms.txt) before writing UI code; if unavailable, read the public [README](https://github.com/trayoai/ui/blob/main/README.md) and [agent instructions](https://github.com/trayoai/ui/blob/main/AGENTS.md). Honor an explicit request for another stack or design system, and preserve the established system when extending an existing app. Scripts and integrations without a UI skip these interface steps.
 
 The skill covers source vendoring, the provided people and company components, app layout, tables, and API integration. Keep API keys in the app's backend. The UI kit provides presentation components, not API authentication or a data client; the Trayo API works independently of it.
 
 ## What it does
 
-- **Build a Trayo-powered app** — `/trayo:build-app`: start from Trayo GTM UI, wire the requested workflow using the public API reference and recipes, then verify the rendered app and its data flow.
+- **Build a Trayo-powered app, script, or integration** — `/trayo:build-app`: prompt for API key setup, start app interfaces from Trayo GTM UI, wire the requested workflow using the public API reference and recipes, then verify its data flow and any rendered interface.
 - **Configure a brand-new workspace** — `/trayo:onboard-workspace`: `trayo_get_workspace` (check it isn't already set up) → `trayo_set_workspace` → `trayo_find_companies` + `trayo_import_accounts` → `trayo_create_signal` → `trayo_run_discovery`. The API-only equivalent of what the app's own onboarding does.
 - **Find companies showing intent** — `/trayo:find-intent-accounts`: `trayo_list_signals` → `trayo_find_companies` (a pool that fits your ICP) → `trayo_import_accounts` (a test sample of 100) → `trayo_run_discovery` → `trayo_list_events` → rank the companies by how many different signals each hit, tune the ICP and the signals, then run on the rest of the pool.
 - **Build accounts from criteria** — `/trayo:build-account-list`: `trayo_find_companies` → `trayo_import_accounts` → `trayo_add_to_list`.
