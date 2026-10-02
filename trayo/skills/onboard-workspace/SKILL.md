@@ -5,6 +5,8 @@ description: Configure a brand-new, empty Trayo workspace end to end — a stake
 
 # Onboard a new workspace
 
+For a multi-step job, start with skill `plan-gtm-work`. Reuse an applicable plan already in the conversation; skip this step for a simple lookup.
+
 This is the API-only replacement for the setup the Trayo app runs automatically when a
 workspace is created there. A workspace created through this API starts with none of it —
 no stakeholder definition, no accounts, no signals — and stays that way until something

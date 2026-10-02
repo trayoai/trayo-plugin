@@ -5,6 +5,8 @@ description: Find work email addresses — and phone numbers when asked — for 
 
 # Enrich contacts
 
+For a multi-step job, start with skill `plan-gtm-work`. Reuse an applicable plan already in the conversation; skip this step for a simple lookup.
+
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.
 
 1. `trayo_whoami` once. Read `lookups.email.remaining` or `lookups.phone.remaining` for the requested field's plan allowance snapshot; do not calculate it from `limit` and `used`. `null` means no plan lookup cap for that field, but workspace quota, the rolling 24-hour daily usage limit (`quota_daily_limit`), and request checks can still refuse work. Describe a numeric value as remaining plan allowance, not a promise that those lookups will start or find contact details. Stop if `canInitiate` is false (workspace lifecycle) or the field's capability is unavailable; explain its `blockedBy` reasons. An available capability does not guarantee acceptance. Handle the actual refusal code and `stoppedBy.retry` as described in step 6.

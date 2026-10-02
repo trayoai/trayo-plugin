@@ -2,7 +2,7 @@
 
 Trayo finds companies and people, researches accounts, looks up contact details, and surfaces buying
 signals for the accounts in a Trayo workspace. This extension connects Gemini CLI to the Trayo MCP
-server at https://api.trayo.ai/v1/mcp and adds twelve Trayo skills for common GTM workflows.
+server at https://api.trayo.ai/v1/mcp and adds Trayo skills for common GTM workflows.
 
 - The Trayo tools need the user to sign in. If the `trayo` MCP server is disconnected or needs
   authentication, ask the user to run `/mcp auth trayo`, sign in with their Trayo account in the
@@ -13,3 +13,5 @@ server at https://api.trayo.ai/v1/mcp and adds twelve Trayo skills for common GT
   `mcp_trayo_trayo_whoami`. The skills use the plain tool names.
 - Find, search and research tools save nothing. Add companies with `trayo_import_accounts` and people
   with `trayo_add_people` only once the user has agreed on the set; write tools change the workspace.
+- For a multi-step GTM job, start with skill `plan-gtm-work`, then use the skills it selects.
+  Reuse an applicable plan and keep simple lookups direct.

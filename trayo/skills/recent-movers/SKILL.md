@@ -5,6 +5,8 @@ description: Find people who recently changed jobs — who left a company, who j
 
 # Recent movers
 
+For a multi-step job, start with skill `plan-gtm-work`. Reuse an applicable plan already in the conversation; skip this step for a simple lookup.
+
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.
 
 1. `trayo_search_job_changes` with `destination: { website }` for who joined, `source: { website }` for who left, or both for moves from one to the other. At least one of the two is required; add `detectedSince` to narrow the 90-day window. Each row: the `person`, both roles under `source` and `destination`, `detectedAt` and `startedAt`. At most 25 rows come back, most recently detected first, one row per person per destination.

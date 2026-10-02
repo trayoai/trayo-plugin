@@ -35,7 +35,7 @@ test('builds a Gemini CLI extension with the manifest at its root and every plug
   const pluginSkills = path.join(repoRoot, 'trayo', 'skills');
   const skillFiles = listFiles(pluginSkills).sort();
   assert.deepEqual(listFiles(path.join(outDir, 'skills')).sort(), skillFiles);
-  assert.equal(skillFiles.filter((file) => file.endsWith(`${path.sep}SKILL.md`)).length, 12);
+  assert.ok(skillFiles.includes(path.join('plan-gtm-work', 'SKILL.md')));
   for (const file of skillFiles) {
     assert.equal(
       readFileSync(path.join(outDir, 'skills', file), 'utf8'),

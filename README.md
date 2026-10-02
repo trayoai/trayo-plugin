@@ -1,6 +1,6 @@
 # Trayo plugin
 
-The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, keyword searches of recent LinkedIn posts, lookalikes, account research, contact enrichment, signals, discovery, and events. It includes twelve skills for common GTM workflows and building apps with Trayo.
+The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, keyword searches of recent LinkedIn posts, lookalikes, account research, contact enrichment, signals, discovery, and events. It includes skills for planning GTM work, executing common workflows and building apps with Trayo.
 
 For exact company criteria, people at matching employers, and recent post evidence, see the [direct search guide](trayo/README.md#direct-company-people-and-post-search). It covers query expansion, company/person filters, pagination, and coverage limits.
 
@@ -56,7 +56,7 @@ gemini extensions install https://github.com/trayoai/trayo-plugin
 ```
 
 Start Gemini CLI and run `/mcp auth trayo` to sign in with your Trayo account in the browser; there is no API key
-to paste. Then ask Gemini to call `trayo_whoami`. The extension adds the Trayo MCP server, the twelve skills, and a
+to paste. Then ask Gemini to call `trayo_whoami`. The extension adds the Trayo MCP server, the skills, and a
 short `GEMINI.md` context file.
 
 ## Claude Cowork and Claude Desktop

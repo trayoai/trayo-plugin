@@ -324,7 +324,7 @@ test('every checked-in skill is listed in the plugin guide', () => {
   const skillNames = readdirSync(skillsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name);
-  assert.equal(skillNames.length, 12);
+  assert.ok(skillNames.includes('plan-gtm-work'));
   const readme = readFileSync(path.join(repoRoot, 'trayo', 'README.md'), 'utf8');
   for (const name of skillNames) {
     assert.ok(readme.includes(`/trayo:${name}`), `${name} is missing from the plugin guide`);
@@ -334,7 +334,7 @@ test('every checked-in skill is listed in the plugin guide', () => {
 test('every checked-in data workflow skill has a complete final handoff', () => {
   const skillsRoot = path.join(repoRoot, 'trayo', 'skills');
   const skillNames = readdirSync(skillsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && entry.name !== 'build-app')
+    .filter((entry) => entry.isDirectory() && !['build-app', 'plan-gtm-work'].includes(entry.name))
     .map((entry) => entry.name);
   assert.equal(skillNames.length, 11);
 
@@ -351,6 +351,24 @@ test('every checked-in data workflow skill has a complete final handoff', () => 
     assert.ok(positions.every((position) => position >= 0), `${name} is missing a handoff option`);
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b), name);
     assert.match(body, /recipe `[a-z-]+`/, `${name} must name a public REST recipe`);
+  }
+});
+
+test('workflow skills route to planning without a self-reference or missing skill', () => {
+  const skillsRoot = path.join(repoRoot, 'trayo', 'skills');
+  const names = readdirSync(skillsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  for (const name of names) {
+    const body = readFileSync(path.join(skillsRoot, name, 'SKILL.md'), 'utf8');
+    const references = [...body.matchAll(/\bskill `([a-z-]+)`/gi)].map((match) => match[1]);
+    for (const reference of references) {
+      assert.ok(names.includes(reference), `${name} references missing skill ${reference}`);
+      assert.notEqual(reference, name, `${name} routes back to itself`);
+    }
+    if (name !== 'plan-gtm-work') {
+      assert.ok(references.includes('plan-gtm-work'), `${name} bypasses planning`);
+      assert.match(body, /Reuse an applicable plan.*skip this step for a simple lookup/);
+    }
   }
 });
 

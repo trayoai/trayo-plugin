@@ -5,6 +5,8 @@ description: Research one account — what the company does, why now, who the st
 
 # Research an account
 
+For a multi-step job, start with skill `plan-gtm-work`. Reuse an applicable plan already in the conversation; skip this step for a simple lookup.
+
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.
 
 1. If the user named a company that may already be in the workspace, call `trayo_list_accounts` with `{ q: name }` to recover its `accountId`; check the returned name and URL before using it. Then call `trayo_research_company` with `{ company: { accountId } }`, or `{ company: { website } }` when it is not there — `accountId` goes on its own, never beside `website`, `linkedinUrl` or `name`. It answers the overview in `research`, the same content as `reportMarkdown`, and the company as resolved.

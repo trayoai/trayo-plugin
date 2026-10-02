@@ -5,6 +5,8 @@ description: Build a GTM app, dashboard, or internal tool powered by Trayo. Use 
 
 # Build an app with Trayo
 
+For a multi-step job, start with skill `plan-gtm-work`. Reuse an applicable plan already in the conversation; skip this step for a simple lookup.
+
 When building a new Trayo-powered app interface, you must use **Trayo GTM UI** as the default UI foundation. Read [https://ui.trayo.ai/llms.txt](https://ui.trayo.ai/llms.txt) before writing UI code. If it is unavailable, read the public [README](https://github.com/trayoai/ui/blob/main/README.md) and [AGENTS.md](https://github.com/trayoai/ui/blob/main/AGENTS.md).
 
 Honor an explicit request for a different stack or design system. When extending an existing app, preserve its established UI system instead of migrating it as an incidental change. This requirement applies to building new interfaces; API scripts and data-only tasks do not need the UI library. The Trayo API works independently of the kit.
