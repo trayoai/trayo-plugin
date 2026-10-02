@@ -1,6 +1,6 @@
 # Trayo plugin
 
-The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, keyword searches of recent LinkedIn posts, lookalikes, account research, contact enrichment, signals, discovery, and events. It includes skills for planning GTM work, executing common workflows and building apps with Trayo.
+The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, keyword searches of recent LinkedIn posts, lookalikes, account research, contact enrichment, signals, discovery, and events. Use its skills to plan work, run searches, and build apps with Trayo.
 
 For exact company criteria, people at matching employers, and recent post evidence, see the [direct search guide](trayo/README.md#direct-company-people-and-post-search). It covers query expansion, company/person filters, pagination, and coverage limits.
 
@@ -79,4 +79,4 @@ MIT. See [LICENSE](LICENSE).
 
 This public repository is the source of truth for the plugin. Update its skills and manifests here; no nonpublic repository is synchronized into it. Before pushing a branch, review every changed file as public material and run `node --test .github/scripts/*.test.mjs` plus `node .github/scripts/validate-plugin.mjs`. Do not include credentials, customer data, or nonpublic implementation details. Branches and pull requests in this repository are public as soon as they are pushed.
 
-Use the [planning behavior evaluations](evals/planning/README.md) to assess an agent's tool choices, query revisions and final evidence against synthetic scenarios. The trajectory grader and its unit tests are separate from running and reviewing an actual model evaluation.
+Use the [planning tests](evals/planning/README.md) to review an agent's tool choices, search changes, and answers. The grader compares recorded calls with expected calls. A person must also review the tool results and final answer. The grader's unit tests do not run an agent.

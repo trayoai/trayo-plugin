@@ -20,5 +20,5 @@ server at https://api.trayo.ai/v1/mcp and adds Trayo skills for common GTM workf
   `mcp_trayo_trayo_whoami`. The skills use the plain tool names.
 - Find, search and research tools save nothing. Add companies with `trayo_import_accounts` and people
   with `trayo_add_people` only once the user has agreed on the set; write tools change the workspace.
-- For a multi-step GTM job, start with skill `plan-gtm-work`, then use the skills it selects.
-  Reuse an applicable plan and keep simple lookups direct.
+- For a multi-step GTM job, start with skill `plan-gtm-work`. Use the skills that the plan selects.
+  If an existing plan fits the job, reuse it. For a simple lookup, call the tool directly.
