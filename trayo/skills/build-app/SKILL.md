@@ -5,8 +5,6 @@ description: Build a GTM app, dashboard, internal tool, script, or integration p
 
 # Build an app with Trayo
 
-For a multi-step job, start with skill `plan-gtm-work`. Reuse an applicable plan already in the conversation; skip this step for a simple lookup.
-
 ## Set up the API key first
 
 As soon as the user starts building an app, script, or integration against the Trayo REST API, prompt them to configure a workspace API key **before writing API integration code or making authenticated REST requests**. Do not leave this until the final handoff. If a key is already configured for this project and the intended workspace, reuse it without asking again. Check whether the secret is configured without displaying its value.

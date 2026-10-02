@@ -5,8 +5,6 @@ description: Research one person — their role and trajectory, what they are li
 
 # Research a person
 
-For a multi-step job, start with skill `plan-gtm-work`. Reuse an applicable plan already in the conversation; skip this step for a simple lookup.
-
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.
 
 1. Name them. `trayo_research_person { person: { linkedinUrl } }` takes a professional profile URL or just its handle, and they do NOT have to be in the workspace. `{ person: { personId } }` names someone who already is. Exactly one of the two, never both — sending both is `validation_failed`. A company page is not a person profile and is refused.

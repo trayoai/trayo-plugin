@@ -354,7 +354,7 @@ test('every checked-in data workflow skill has a complete final handoff', () => 
   }
 });
 
-test('workflow skills route to planning without a self-reference or missing skill', () => {
+test('skill references resolve without a self-reference or missing skill', () => {
   const skillsRoot = path.join(repoRoot, 'trayo', 'skills');
   const names = readdirSync(skillsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory()).map((entry) => entry.name);
@@ -364,10 +364,6 @@ test('workflow skills route to planning without a self-reference or missing skil
     for (const reference of references) {
       assert.ok(names.includes(reference), `${name} references missing skill ${reference}`);
       assert.notEqual(reference, name, `${name} routes back to itself`);
-    }
-    if (name !== 'plan-gtm-work') {
-      assert.ok(references.includes('plan-gtm-work'), `${name} bypasses planning`);
-      assert.match(body, /Reuse an applicable plan.*skip this step for a simple lookup/);
     }
   }
 });

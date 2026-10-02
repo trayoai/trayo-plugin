@@ -5,8 +5,6 @@ description: Find the right people at one or more companies for a stakeholder de
 
 # Find stakeholders
 
-For a multi-step job, start with skill `plan-gtm-work`. Reuse an applicable plan already in the conversation; skip this step for a simple lookup.
-
 **Find, then add.** Search, find and research tools save nothing, so you can run a search again as often as needed. Iterate until the set is right, and add only what the user approved. Adding (`trayo_import_accounts` for companies, `trayo_add_people` for people) is how you save them.
 
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.

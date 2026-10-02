@@ -5,8 +5,6 @@ description: Scan a list of accounts for ONE signal — a defined business event
 
 # Scan accounts for one signal
 
-For a multi-step job, start with skill `plan-gtm-work`. Reuse an applicable plan already in the conversation; skip this step for a simple lookup.
-
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.
 
 1. `trayo_whoami` once.
