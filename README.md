@@ -74,9 +74,3 @@ See [the plugin guide](trayo/README.md) for complete setup steps, what the plugi
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-## Contributing
-
-This public repository is the source of truth for the plugin. Update its skills and manifests here; no nonpublic repository is synchronized into it. Before pushing a branch, review every changed file as public material and run `node --test .github/scripts/*.test.mjs` plus `node .github/scripts/validate-plugin.mjs`. Do not include credentials, customer data, or nonpublic implementation details. Branches and pull requests in this repository are public as soon as they are pushed.
-
-Use the [planning tests](evals/planning/README.md) to review an agent's tool choices, search changes, and answers. The grader compares recorded calls with expected calls. A person must also review the tool results and final answer. The grader's unit tests do not run an agent.

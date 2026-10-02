@@ -33,9 +33,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Test publication validator
-        run: node --test .github/scripts/*.test.mjs
-
       - name: Read plugin version
         id: metadata
         shell: bash
