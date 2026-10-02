@@ -8,6 +8,9 @@ server at https://api.trayo.ai/v1/mcp and adds twelve Trayo skills for common GT
   authentication, ask the user to run `/mcp auth trayo`, sign in with their Trayo account in the
   browser, and approve a workspace. There is no API key: never ask for one or look for one in files
   or the environment.
+- If the Trayo tools are not listed, the server may still be connecting. Check the tool list again
+  before telling the user Trayo is not connected, and check again on every turn instead of repeating
+  an earlier answer.
 - Call `trayo_whoami` first. It confirms the workspace, the user, and their permissions.
 - Gemini CLI lists the Trayo tools with an `mcp_trayo_` prefix, so `trayo_whoami` appears as
   `mcp_trayo_trayo_whoami`. The skills use the plain tool names.

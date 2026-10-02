@@ -34,6 +34,15 @@ codex mcp login trayo
 
 `codex mcp login` opens the Trayo sign-in in your browser. Restart Codex afterwards.
 
+Codex starts MCP servers in the background and waits only one second for them before it answers your
+first message. Trayo's sign-in handshake can take a little longer, so the first answer in a new session
+may be written without the Trayo tools; they are available from the next step on. To have Codex wait for
+Trayo, add this line near the top of `~/.codex/config.toml`, above any `[section]` header:
+
+```toml
+mcp_optional_startup_grace_ms = 5000
+```
+
 ## Cursor
 
 Once Trayo is listed in the [Cursor Marketplace](https://cursor.com/marketplace), install it from

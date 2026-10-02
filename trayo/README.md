@@ -95,7 +95,16 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.3. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.4. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+
+Codex starts MCP servers in the background and waits only one second for them before it answers your
+first message. Trayo's sign-in handshake can take a little longer, so the first answer in a new session
+may be written without the Trayo tools; they are available from the next step on. To have Codex wait for
+Trayo, add this line near the top of `~/.codex/config.toml`, above any `[section]` header:
+
+```toml
+mcp_optional_startup_grace_ms = 5000
+```
 
 ### Cursor
 

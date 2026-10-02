@@ -5,6 +5,8 @@ description: Find events for a list of companies in Trayo — import accounts, d
 
 # Find events at selected companies
 
+If the Trayo tools (`trayo_whoami` and the rest) are not listed, the Trayo server may still be connecting: some clients start the first answer before it is ready, and the tools appear a few seconds later. Check the current tool list again before you tell the user Trayo is not connected, and check it on every turn instead of repeating an earlier answer. If the tools are still missing, tell the user how to reconnect: in Codex, run `codex mcp login trayo` and restart Codex; in Claude Code, run `/mcp`, select **trayo** and choose **Authenticate**; in Gemini CLI, run `/mcp auth trayo`; in Cursor, sign in to the Trayo server from its MCP settings.
+
 Collection results may use `delivery: "file"`. In that case, `preview` and `metadata` are compact and may be shortened; download `file.downloadUrl` and process the complete JSON in code before selecting or importing rows. If the download is blocked, as in Claude Cowork, read the same result with `trayo_read_result { resultId }` and follow `page.nextCursor` while `page.hasMore` is true; this never repeats the search. Keep the original `hasMore`/`nextCursor` pagination, and do not repeat the search to get its file. Use `output: "file"` when a download is wanted, or `output: "pages"` when you cannot download files.
 
 The core Trayo loop, with the `trayo_*` tools.
