@@ -1,0 +1,100 @@
+[
+  {
+    "id": "company-title-join",
+    "prompt": "Find 20 companies with 50–200 employees and a CTO. Return companies only; do not save anything.",
+    "setup": "Return 20 qualifying synthetic companies, hasMore false, without truncation. Each has a sourced current CTO role. Access is already established.",
+    "steps": [{
+      "tool": "trayo_find_companies",
+      "arguments": {"mode": "direct", "filters": {"headcount": {"min": 50, "max": 200}, "title": {"any": ["cto", "chief technology officer"]}}, "limit": 20},
+      "exactArguments": ["filters"],
+      "absentArguments": ["query", "cursor"]
+    }],
+    "review": ["Returns 20 distinct companies, not people.", "Does not claim company fit proves buying intent.", "Does not request unnecessary approval or seller context."]
+  },
+  {
+    "id": "people-employer-join",
+    "prompt": "Find 10 CTOs currently at companies with 50–200 employees. Return names and employers without saving or enriching them.",
+    "setup": "Return 10 qualifying synthetic people with current roles at matching employers, hasMore false, without truncation. Access is already established.",
+    "steps": [{
+      "tool": "trayo_find_people",
+      "arguments": {"mode": "direct", "filters": {"headcount": {"min": 50, "max": 200}, "title": {"any": ["cto", "chief technology officer"]}}, "limit": 10},
+      "exactArguments": ["filters"],
+      "absentArguments": ["query", "cursor"]
+    }],
+    "review": ["Uses the current role at the matching employer, not an unrelated current affiliation.", "Returns 10 people without inventing contact details."]
+  },
+  {
+    "id": "role-start-month",
+    "prompt": "Find CISOs who started since September 2026 at US companies with at least 500 employees.",
+    "setup": "Return two synthetic job changes with matching titles, start months, and destination companies; hasMore false. Access is already established.",
+    "steps": [{
+      "tool": "trayo_search_job_changes",
+      "arguments": {"title": {"any": ["ciso", "chief information security officer"]}, "startedSince": "2026-09", "destinationFilters": {"hq": {"countries": ["US"]}, "headcount": {"min": 500}}},
+      "exactArguments": ["title", "destinationFilters"],
+      "absentArguments": ["detectedSince", "source", "destination", "cursor"]
+    }],
+    "review": ["Explains month precision; does not claim an exact day or confuse detection with role start.", "Does not describe destination HQ as the person's home location."]
+  },
+  {
+    "id": "post-concepts-empty-sample",
+    "prompt": "Find posts about CRM migrations from the last seven days. Exclude posts containing the phrase 'job opening'.",
+    "setup": "Return applied terms matching the call and an empty bounded sample, coverage.exhaustive false. No error occurred. Access is already established.",
+    "steps": [{
+      "tool": "trayo_search_posts_by_keywords",
+      "arguments": {"concepts": [["crm", "customer relationship management"], ["migration", "migrations", "migrating"]], "windowDays": 7, "excludedPhrases": ["job opening"]},
+      "exactArguments": ["concepts", "excludedPhrases"],
+      "absentArguments": ["cursor"]
+    }],
+    "review": ["Reports no matches in this bounded sample, not that no such posts exist.", "Does not repeat an identical successful empty query or substitute related concepts.", "Keeps keyword evidence distinct from buying intent."]
+  },
+  {
+    "id": "retry-transient-search",
+    "prompt": "Find 20 companies with 50–200 employees and a CTO. Return companies only without saving them.",
+    "setup": "The first direct search returns a transient capacity error with retry_later and a retry delay. After that delay, the identical search succeeds with 20 qualifying synthetic companies, hasMore false. Access is already established.",
+    "steps": [
+      {"tool": "trayo_find_companies", "arguments": {"mode": "direct", "filters": {"headcount": {"min": 50, "max": 200}, "title": {"any": ["cto", "chief technology officer"]}}, "limit": 20}, "exactArguments": ["filters"], "absentArguments": ["query", "cursor"]},
+      {"tool": "trayo_find_companies", "arguments": {"mode": "direct", "filters": {"headcount": {"min": 50, "max": 200}, "title": {"any": ["cto", "chief technology officer"]}}, "limit": 20}, "exactArguments": ["filters"], "absentArguments": ["query", "cursor"]}
+    ],
+    "review": ["Waits for the supplied retry delay before the sequential retry; verify timestamps in the transcript.", "Treats the initial error as a failed attempt, not zero matches.", "Preserves constraints and stops retrying after success."]
+  },
+  {
+    "id": "unsupported-post-lookback",
+    "prompt": "Find LinkedIn posts about CRM migrations across the last 90 days. The full period is required.",
+    "setup": "The keyword tool's documented maximum window is seven days; no available tool promises the requested historical post coverage. Access is already established.",
+    "steps": [],
+    "review": ["Explicitly identifies the unsupported 90-day requirement and seven-day tool limit.", "Offers a clearly labeled narrower alternative without executing it as if it met the request.", "Does not claim discovery supplies the missing historical posts."]
+  },
+  {
+    "id": "revise-people-cap",
+    "prompt": "Continue: I need six current CTOs at sample.example. Your last direct people query used companyWebsites ['sample.example'], title.any ['cto', 'chief technology officer'], perCompany 4 and limit 6. It returned four people with a per-company cap note, truncated true, and nextCursor 'old-cursor'. Keep the same company and role.",
+    "setup": "The previous query and cap observation are already in context. Return six qualifying synthetic people after the cap is raised; hasMore false. Access is already established.",
+    "steps": [{
+      "tool": "trayo_find_people",
+      "arguments": {"mode": "direct", "filters": {"companyWebsites": ["sample.example"], "title": {"any": ["cto", "chief technology officer"]}}, "perCompany": 6, "limit": 6},
+      "exactArguments": ["filters"],
+      "absentArguments": ["query", "cursor"]
+    }],
+    "review": ["Explains that the observed cap caused the shortfall and restarts without the old cursor.", "Keeps the role and company fixed and returns six people without saving them."]
+  },
+  {
+    "id": "resume-pending-discovery",
+    "prompt": "Finish the expansion-signal discovery already running as run-sample and summarize its findings. Its first response was partial; the 45-second wait ended with settledAt unset. The approved accounts and signals are unchanged.",
+    "setup": "First poll: settledAt unset with partial progress. Second poll: settledAt set. The subsequent event read returns all events, hasMore false. Use synthetic run IDs in the harness, mapped consistently to run-sample. Access and scope are already approved.",
+    "steps": [
+      {"tool": "trayo_get_discovery", "arguments": {"runId": "run-sample", "waitSeconds": 45}},
+      {"tool": "trayo_get_discovery", "arguments": {"runId": "run-sample", "waitSeconds": 45}},
+      {"tool": "trayo_list_events", "arguments": {"discoveryRunId": "run-sample"}, "absentArguments": ["cursor"]}
+    ],
+    "review": ["Keeps counts provisional until the supplied settledAt is set.", "Does not promise completion in 45 seconds or treat the wait window as total runtime.", "Summarizes supported evidence without adding contacts or a second discovery."]
+  },
+  {
+    "id": "reuse-event-pages",
+    "prompt": "Summarize all events from settled discovery run-sample. Its first event page is already in context with hasMore true and nextCursor 'page-2'. No new evidence collection is needed.",
+    "setup": "Second event page returns hasMore true, nextCursor page-3; third returns hasMore false. Include one duplicate event across pages. Access and the first page are already in context.",
+    "steps": [
+      {"tool": "trayo_list_events", "arguments": {"discoveryRunId": "run-sample", "cursor": "page-2"}},
+      {"tool": "trayo_list_events", "arguments": {"discoveryRunId": "run-sample", "cursor": "page-3"}}
+    ],
+    "review": ["Combines the first page and subsequent pages and deduplicates by event ID.", "Preserves the run scope and does not omit findings beyond the preview."]
+  }
+]

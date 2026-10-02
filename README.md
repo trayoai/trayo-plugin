@@ -76,3 +76,5 @@ MIT. See [LICENSE](LICENSE).
 ## Contributing
 
 This public repository is the source of truth for the plugin. Update its skills and manifests here; no nonpublic repository is synchronized into it. Before pushing a branch, review every changed file as public material and run `node --test .github/scripts/*.test.mjs` plus `node .github/scripts/validate-plugin.mjs`. Do not include credentials, customer data, or nonpublic implementation details. Branches and pull requests in this repository are public as soon as they are pushed.
+
+Use the [planning behavior evaluations](evals/planning/README.md) to assess an agent's tool choices, query revisions and final evidence against synthetic scenarios. The trajectory grader and its unit tests are separate from running and reviewing an actual model evaluation.
