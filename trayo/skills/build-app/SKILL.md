@@ -5,6 +5,8 @@ description: Build a GTM app, dashboard, or internal tool powered by Trayo. Use 
 
 # Build an app with Trayo
 
+If the Trayo tools (`trayo_whoami` and the rest) are not listed, the Trayo server may still be connecting: some clients start the first answer before it is ready, and the tools appear a few seconds later. Check the current tool list again before you tell the user Trayo is not connected, and check it on every turn instead of repeating an earlier answer. If the tools are still missing, tell the user how to reconnect: in Codex, run `codex mcp login trayo` and restart Codex; in Claude Code, run `/mcp`, select **trayo** and choose **Authenticate**; in Gemini CLI, run `/mcp auth trayo`; in Cursor, sign in to the Trayo server from its MCP settings.
+
 When building a new Trayo-powered app interface, you must use **Trayo GTM UI** as the default UI foundation. Read [https://ui.trayo.ai/llms.txt](https://ui.trayo.ai/llms.txt) before writing UI code. If it is unavailable, read the public [README](https://github.com/trayoai/ui/blob/main/README.md) and [AGENTS.md](https://github.com/trayoai/ui/blob/main/AGENTS.md).
 
 Honor an explicit request for a different stack or design system. When extending an existing app, preserve its established UI system instead of migrating it as an incidental change. This requirement applies to building new interfaces; API scripts and data-only tasks do not need the UI library. The Trayo API works independently of the kit.

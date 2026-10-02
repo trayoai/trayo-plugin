@@ -5,6 +5,8 @@ description: Configure a brand-new, empty Trayo workspace end to end — a stake
 
 # Onboard a new workspace
 
+If the Trayo tools (`trayo_whoami` and the rest) are not listed, the Trayo server may still be connecting: some clients start the first answer before it is ready, and the tools appear a few seconds later. Check the current tool list again before you tell the user Trayo is not connected, and check it on every turn instead of repeating an earlier answer. If the tools are still missing, tell the user how to reconnect: in Codex, run `codex mcp login trayo` and restart Codex; in Claude Code, run `/mcp`, select **trayo** and choose **Authenticate**; in Gemini CLI, run `/mcp auth trayo`; in Cursor, sign in to the Trayo server from its MCP settings.
+
 This is the API-only replacement for the setup the Trayo app runs automatically when a
 workspace is created there. A workspace created through this API starts with none of it —
 no stakeholder definition, no accounts, no signals — and stays that way until something
