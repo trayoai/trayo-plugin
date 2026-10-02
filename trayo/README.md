@@ -1,6 +1,6 @@
 # Trayo plugin
 
-Use Trayo from Claude Code, Claude Cowork, Codex, Cursor, Gemini CLI, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with twelve skills: build an app, onboard a new workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, check account events, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
+Use Trayo from Claude Code, Claude Cowork, Codex, Cursor, Gemini CLI, and other clients that support remote MCP servers. The plugin bundles the Trayo MCP server with skills: plan GTM work, build an app, onboard a new workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, check account events, find stakeholders, enrich contacts, recent movers, and the core discovery loop.
 
 You sign in with your Trayo account in the browser the first time a Trayo tool is used. The connection uses your own workspace permissions. There is no API key to paste, and the plugin stores no credentials.
 
@@ -10,7 +10,7 @@ You sign in with your Trayo account in the browser the first time a Trayo tool i
 - **OAuth sign-in.** The server requires OAuth 2.0 authorization. Your client opens a Trayo sign-in page in your browser, you approve access to a workspace, and the client stores and refreshes the access token. The plugin itself contains no key, token, or secret.
 - **What is sent to Trayo.** Each tool call sends its arguments to the Trayo MCP server over HTTPS, for example company names, websites and professional profile URLs, search criteria, signal definitions, and the IDs of accounts, people and lists in your workspace. Write tools change your workspace (importing accounts, adding people, saving lists and signals, starting discovery), and contact lookups draw on your workspace's lookup allowance.
 - **What comes back.** Company, people, contact, signal, and event data from your workspace and from Trayo's company and people data. A large result can come back as a preview plus a time-limited download link that the agent fetches in code when you want the complete result.
-- **Skills.** Twelve skill instruction files that tell the agent which Trayo tools to call and in what order. Several point the agent to Trayo's public API documentation at [https://api.trayo.ai](https://api.trayo.ai) when you want a REST script. `/trayo:build-app` also reads the public Trayo GTM UI guide at [https://ui.trayo.ai](https://ui.trayo.ai) and, when you ask it to build an app, copies the public `trayoai/ui` source from GitHub into your project with `npx degit`.
+- **Skills.** Skill instruction files that tell the agent which Trayo tools to call and in what order. Several point the agent to Trayo's public API documentation at [https://api.trayo.ai](https://api.trayo.ai) when you want a REST script. `/trayo:build-app` also reads the public Trayo GTM UI guide at [https://ui.trayo.ai](https://ui.trayo.ai) and, when you ask it to build an app, copies the public `trayoai/ui` source from GitHub into your project with `npx degit`.
 - **Gemini CLI context.** In Gemini CLI, the extension also loads a short `GEMINI.md` into each session: what Trayo is, how to sign in, and to call `trayo_whoami` first.
 
 ## Connect
@@ -70,7 +70,7 @@ If `/mcp` shows Trayo as disabled, re-enable it there; the strict flag does not 
 1. Open **Customize → Plugins**.
 2. Select **+ → Add marketplace → Add from repository**.
 3. Add `https://github.com/trayoai/trayo-plugin`.
-4. Install **Trayo** to add its twelve skills.
+4. Install **Trayo** to add its skills.
 5. If Trayo is not connected yet, add a custom connector named **Trayo** with URL `https://api.trayo.ai/v1/mcp` and use its sign-in flow.
 6. Sign in to Trayo and approve the workspace shown on the consent page.
 7. Start a new task and ask Claude to call `trayo_whoami`.
@@ -95,12 +95,12 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.5. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.6. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 
 Once Trayo is listed in the [Cursor Marketplace](https://cursor.com/marketplace), install it from
-**Customize** in Cursor. The plugin adds the Trayo MCP server and the twelve skills, and Cursor asks
+**Customize** in Cursor. The plugin adds the Trayo MCP server and the skills, and Cursor asks
 you to sign in with your Trayo account in the browser.
 
 Until then, add the server to `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project) and sign in
@@ -132,7 +132,7 @@ Then:
 3. Ask Gemini to call `trayo_whoami`.
 
 Gemini CLI installs the extension from this repository's latest GitHub release. It adds the `trayo` server, the
-twelve skills, and the `GEMINI.md` context file. Gemini activates a skill when your request matches it and asks
+skills, and the `GEMINI.md` context file. Gemini activates a skill when your request matches it and asks
 before it does; `/skills list` shows them. Gemini CLI names the Trayo tools with an `mcp_trayo_` prefix, for example
 `mcp_trayo_trayo_whoami`. Run `gemini extensions update trayo` to pick up a newer release.
 
@@ -153,7 +153,7 @@ instead, entered in the client's own `X-API-Key` header field. Keep the key in t
 field or secret store; never add it to this repository or paste it into an agent conversation. The key
 needs the scopes listed under Notes.
 
-The twelve skills are included for clients that support this plugin marketplace format. Call `trayo_whoami`
+The skills are included for clients that support this plugin marketplace format. Call `trayo_whoami`
 after setup to verify the connection.
 
 ## Permissions
@@ -165,8 +165,8 @@ the next request; removing your membership revokes access. Workspace plan and us
 ## What you get
 
 - The Trayo tools, always loaded (no tool-search deferral), including `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_update_account`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_posts_by_keywords`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
-- Twelve skills, invoked automatically when you describe the job: `/trayo:build-app`, `/trayo:onboard-workspace`, `/trayo:find-intent-accounts`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:check-account-events`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
-- The eleven data workflow skills end the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal), run it again when asked (a REST recipe), or hand it off (a CSV or a file). The app-building skill hands back the app and its verification results.
+- Skills, invoked automatically when you describe the job: `/trayo:plan-gtm-work`, `/trayo:build-app`, `/trayo:onboard-workspace`, `/trayo:find-intent-accounts`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:check-account-events`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
+- The data workflow skills end the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal), run it again when asked (a REST recipe), or hand it off (a CSV or a file). The planning skill states the result, required evidence, chosen tools, and first set of records to search. Planning does not add an approval step. The app-building skill hands back the app and its verification results.
 
 ## Build apps with Trayo
 
