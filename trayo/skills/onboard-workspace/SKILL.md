@@ -75,9 +75,12 @@ split the imported accounts into event-bearing (appear in the merged `events` /
 earliest zero-event accounts until you reach the target (or run out).
 
 **This differs from the app's own onboarding in one way worth saying out loud:** the app
-soft-deletes the zero-event accounts beyond the target; there's no equivalent deactivation
-tool here, so any surplus zero-event accounts from the over-search stay in the workspace.
-Report them separately from the curated cohort and let the user decide whether to remove any.
+soft-deletes the zero-event accounts beyond the target on its own; here, any surplus
+zero-event accounts from the over-search stay in the workspace until you remove them.
+Report them separately from the curated cohort and ask the user whether to remove any.
+Remove only the ones they approve, with `trayo_remove_accounts` (up to 200 ids per call).
+Removal is final from your side; the events and people already found for those accounts
+stay.
 
 ## Rules
 
@@ -95,7 +98,7 @@ Report them separately from the curated cohort and let the user decide whether t
 
 Hand back the stakeholder definition and solutions you set, the account cohort (target vs. event-bearing vs. padded, plus any surplus left over from the over-search), the signal(s) created, and the discovery run id(s) with `eventsNew`.
 
-By now you must have: run Step 0 and stopped on an already-configured workspace; asked before running discovery on more than 100 accounts total; reported the surplus zero-event accounts separately and left their removal to the user.
+By now you must have: run Step 0 and stopped on an already-configured workspace; asked before running discovery on more than 100 accounts total; reported the surplus zero-event accounts separately and removed only the ones the user approved.
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: everything above is already saved — `trayo_list_events` reads what discovery found, and `trayo_search_stakeholders` then `trayo_add_people` fill in people at accounts that still show `people: []`.
