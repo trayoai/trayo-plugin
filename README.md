@@ -30,7 +30,6 @@ server configuration bundled with the plugin.
 ```bash
 codex plugin marketplace add trayoai/trayo-plugin
 codex plugin add trayo@trayo-plugins
-codex mcp add trayo --url https://api.trayo.ai/v1/mcp
 codex mcp login trayo
 ```
 

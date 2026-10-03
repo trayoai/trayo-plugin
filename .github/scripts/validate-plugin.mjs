@@ -67,6 +67,14 @@ function validateCursorPlugin(root, claudeEntry, claudePlugin) {
   );
 }
 
+// Claude Code refuses to install a plugin whose plugin.json has a field it cannot parse, and an inline
+// mcpServers entry would bypass the trayo/.mcp.json checks. Add a field only after
+// `claude plugin validate .` accepts it.
+const claudePluginKeys = new Set([
+  'name', 'displayName', 'version', 'description', 'author', 'homepage', 'repository', 'license', 'keywords',
+  'icon', 'privacyPolicyUrl', 'termsOfServiceUrl', 'documentationUrl', 'supportUrl',
+]);
+
 // Gemini CLI reads gemini-extension.json from the extension root, which is the repository root for
 // git installs and the gallery crawler, and the archive root for the release asset.
 const geminiManifestKeys = new Set(['name', 'version', 'description', 'contextFileName', 'mcpServers']);
@@ -161,6 +169,12 @@ export function validatePlugin(root = process.cwd()) {
   invariant(
     marketplacePlugin.version === plugin.version,
     `Marketplace version ${String(marketplacePlugin.version)} does not match plugin version ${plugin.version}.`,
+  );
+  const unknownKeys = Object.keys(plugin).filter((key) => !claudePluginKeys.has(key));
+  invariant(
+    unknownKeys.length === 0,
+    `Plugin manifest may only set ${[...claudePluginKeys].join(', ')}; found ${unknownKeys.join(', ')}. `
+      + 'Declare MCP servers in trayo/.mcp.json.',
   );
   invariant(
     plugin.repository === 'https://github.com/trayoai/trayo-plugin',
