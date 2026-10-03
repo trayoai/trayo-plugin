@@ -42,7 +42,7 @@ The approved filters and lookback apply to the rest of this job. Keep them uncha
 When the user tunes:
 - A signal that fires on more than half the test says little about intent, because every company looks active. Narrow it or leave it out.
 - Before calling a signal at 0% silent, read `run.error` and `run.blockedSignals`. If it is silent, rewrite it or leave it out.
-- To change a signal, create a new one with `trayo_create_signal` and run its key instead. The old one stays defined; editing or deleting it takes `PATCH` or `DELETE /v1/signals/{signalKey}` on the REST API.
+- To change a signal, create a new one with `trayo_create_signal` and run its key instead, so the events found under the old wording are not counted with the new; `trayo_get_signal` reads the old definition to start from. `trayo_update_signal` edits a signal in place (not its key or `type`) for later runs, and `trayo_delete_signal` retires one. Ask the user before retiring a signal; the events it already found stay.
 - To change the ICP, go back to step 1 and test a new sample.
 
 ## 4. Scale up
