@@ -79,12 +79,11 @@ Your organization's plugin policy may require an administrator to approve the ma
 
 ### Codex
 
-Install the marketplace and skills, then register Trayo through Codex's native MCP configuration and sign in:
+Install the marketplace and the plugin, which registers the Trayo MCP server, then sign in:
 
 ```bash
 codex plugin marketplace add trayoai/trayo-plugin
 codex plugin add trayo@trayo-plugins
-codex mcp add trayo --url https://api.trayo.ai/v1/mcp
 codex mcp login trayo
 ```
 
@@ -95,7 +94,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.6. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.7. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 

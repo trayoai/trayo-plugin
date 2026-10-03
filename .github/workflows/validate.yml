@@ -32,6 +32,11 @@ jobs:
       - name: Validate publication
         run: node .github/scripts/validate-plugin.mjs
 
+      # Claude Code's own schema check: it fails on manifests that `claude plugin install` rejects.
+      # Validating the marketplace also validates trayo/.claude-plugin/plugin.json.
+      - name: Validate with Claude Code
+        run: npx --yes @anthropic-ai/claude-code@2.1.285 plugin validate .
+
       - name: Build Gemini CLI extension archive
         run: node .github/scripts/build-gemini-extension.mjs "$RUNNER_TEMP/gemini-extension" "$RUNNER_TEMP/trayo-gemini-extension.tar.gz"
 
