@@ -39,7 +39,8 @@ Ask for a target count if the user didn't give one; Trayo's own default onboardi
 40 accounts (60 for enterprise plans), so use 40 if they have no preference.
 
 Not every account you add will produce an event in the lookback window, so search for more
-than the target — about 2x is a reasonable margin — the same way `build-account-list` does:
+than the target. Start with about 2x, then use the match rate you observe on that first pass to
+estimate how many more to search, and call that number an estimate. Search the same way `build-account-list` does:
 turn the ICP into a `trayo_find_companies` call (`industries`, `headcount`, `hq`,
 `fundingStages`, `technologies` etc. in `filters`; the rest of the description in `query`;
 `trayo_list_industries` if you're unsure of exact industry wording).

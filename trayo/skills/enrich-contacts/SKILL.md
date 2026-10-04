@@ -26,7 +26,7 @@ Hand back a table of name, title, company, `email.value`, `email.status` and `em
 
 Before reporting completion, reconcile the full selected id set against all batch outcomes, separately for each requested field. Every selected person must have a current result, an explicit refusal/skip, or be listed as still running or not yet submitted. Submit any accidentally omitted ids while the request remains authorized and no allowance stop blocks them. Read the latest contact state for running lookups before counting results; if they are still running, report them as pending, never as not found or failed. Report totals for the whole selection, counting each person once per field, and preserve unresolved ids with their reasons for resuming later.
 
-By now you must have: reconciled every selected id, including the final partial batch; told the user how many lookups remained (`limit - used` from `trayo_whoami`) before starting any; sent only the people they will use; stopped, not looped, when the allowance ended a call.
+By now you must have: reconciled every selected id, including the final partial batch; told the user how many lookups remained (`lookups.<field>.remaining` from `trayo_whoami`) before starting any; sent only the people they will use; stopped, not looped, when the allowance ended a call.
 
 Offer these in one line, then wait for the user's pick:
 - Keep it in Trayo: `trayo_add_to_list` `{ name, members: [{ personId, via }] }` — `via` is provenance a human will read later, so set it honestly (`find` for people a search produced, `manual` otherwise).
