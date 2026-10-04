@@ -269,16 +269,16 @@ Busy, unavailable and timeout errors are failed searches, not empty results.
 Follow the indicated retry delay and keep requests sequential; if failures
 persist on a company or people search, report them and stop. Do not remove
 required filters or change search mode to get around a limit. Post searches are
-the exception: if one keeps failing with busy, unavailable or timeout errors,
-use the other, say which one answered, and say which requirements it could not
-apply. Rate-limit and permission errors apply to both post searches, so wait or
-stop as `retry` says. Check `truncated` and coverage notes before claiming
+the exception: if one keeps failing for any reason other than a rate limit or a
+missing permission, use the other, say which one answered, and say which
+requirements it could not apply. Rate-limit and permission errors apply to both
+post searches, so wait or stop as `retry` says. Check `truncated` and coverage notes before claiming
 that a result set is complete.
 
 ## Large results
 
 Company and people searches, lookalikes, people/list-member/contact reads,
-stakeholder and job-change searches, events, and discovery results accept
+stakeholder, job-change and post searches, events, and discovery results accept
 `output: "auto" | "inline" | "file"`. The default is `auto`: results above
 25 rows or 20 KiB become a compact preview and an expiring JSON download.
 `file` always requests a download; `inline` prefers inline data up to 100 KiB.

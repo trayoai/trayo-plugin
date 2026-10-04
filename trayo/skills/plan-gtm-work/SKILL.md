@@ -91,7 +91,7 @@ Read `code` and `retry` before handling an error:
 - For `retry_later`, wait for the given delay before retrying.
 - For `do_not_retry`, stop.
 
-If the retry guidance permits it, repeat the same arguments. Run retries one at a time. An error does not mean zero matches. If errors continue, report the failure instead of looping. Post searches are the exception: if one keeps failing with busy, unavailable or timeout errors, use the other post search and state which requirements it could not apply. Rate-limit and permission errors apply to both.
+If the retry guidance permits it, repeat the same arguments. Run retries one at a time. An error does not mean zero matches. If errors continue, report the failure instead of looping. Post searches are the exception: if one keeps failing for any reason other than a rate limit or a missing permission, use the other post search and state which requirements it could not apply. Rate-limit and permission errors apply to both.
 
 Continue only within the user's existing permission. Stop when the result is complete, the source has no more results, or a limit blocks further work. If further work needs permission, ask before continuing. Do not weaken the requirements to fill a requested count. For each important change, explain what the result showed and why the next call helps.
 
@@ -131,7 +131,7 @@ CRM means customer relationship management. The user asks for posts about CRM mi
 
 Read `applied`. Examine results for job ads that the phrase exclusions missed. Cite the post evidence. A mention does not prove a buying project.
 
-If this search keeps timing out, use `trayo_search_posts` with `topic: "moving to a new CRM"` and `windowDays: 30`, keep the posts from the past seven days by `publishedAt`, drop job ads by reading them, and say the exclusion was applied by reading, not by the search.
+If this search keeps failing, use `trayo_search_posts` with `topic: "moving to a new CRM"` and `windowDays: 30`, keep the posts from the past seven days by `publishedAt`, drop job ads by reading them, and say the exclusion was applied by reading, not by the search.
 
 If the user asks only about the topic, with no exact words or exclusions, use `trayo_search_posts` with a `topic` such as "moving to a new CRM" and `windowDays: 30`, then keep the posts inside the requested dates by `publishedAt` and say the most recent days are incomplete.
 
