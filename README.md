@@ -1,6 +1,6 @@
 # Trayo plugin
 
-The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, keyword searches of recent LinkedIn posts, lookalikes, account research, contact enrichment, signals, discovery, and events. Use its skills to plan work, run searches, and build apps with Trayo.
+The official Trayo plugin gives AI coding and work agents access to Trayo's company and people search, topic and keyword searches of recent LinkedIn posts, lookalikes, account research, contact enrichment, signals, discovery, and events. Use its skills to plan work, run searches, and build apps with Trayo.
 
 For exact company criteria, people at matching employers, and recent post evidence, see the [direct search guide](trayo/README.md#direct-company-people-and-post-search). It covers query expansion, company/person filters, pagination, and coverage limits.
 

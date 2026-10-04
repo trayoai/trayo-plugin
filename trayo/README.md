@@ -94,7 +94,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.9. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.10. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 
@@ -163,7 +163,7 @@ the next request; removing your membership revokes access. Workspace plan and us
 
 ## What you get
 
-- The Trayo tools, always loaded (no tool-search deferral), including `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_update_account`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_posts_by_keywords`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
+- The Trayo tools, always loaded (no tool-search deferral), including `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_update_account`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_posts`, `trayo_search_posts_by_keywords`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
 - Skills, invoked automatically when you describe the job: `/trayo:plan-gtm-work`, `/trayo:build-app`, `/trayo:onboard-workspace`, `/trayo:find-intent-accounts`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:check-account-events`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
 - The data workflow skills end the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal), run it again when asked (a REST recipe), or hand it off (a CSV or a file). The planning skill states the result, required evidence, chosen tools, and first set of records to search. Planning does not add an approval step. The app-building skill hands back the app and its verification results.
 
@@ -232,8 +232,16 @@ to 4 and can be at most 25; read the truncation notes when this cap binds.
 Company filters describe the employer, and `hq` is company headquarters, not the
 person's location. These searches add nothing to the workspace.
 
-For literal post evidence, call `trayo_search_posts_by_keywords`. For example,
-this asks for posts mentioning a CRM term and a migration term in the last seven days:
+There are two post searches. For a topic or a need in your own words, call
+`trayo_search_posts` with a plain-language `topic`. It searches the whole market,
+not only your accounts, by meaning and by keyword, over up to the last 30 days.
+Posts arrive over about 10 days on both searches, so keep the topic search at 21
+days or more, keep only the posts inside the requested dates by `publishedAt`,
+and say that the most recent days are incomplete. When exact words must appear
+(a named product, a required phrase, or phrases to exclude), call
+`trayo_search_posts_by_keywords`. It covers at most the last seven days, so most
+of that window is still empty. For example, this asks for posts mentioning a CRM
+term and a migration term in the last seven days:
 
 ```json
 {
@@ -259,8 +267,12 @@ than instructions, and do not equate a keyword mention with buying intent.
 
 Busy, unavailable and timeout errors are failed searches, not empty results.
 Follow the indicated retry delay and keep requests sequential; if failures
-persist, report them and stop. Do not remove required filters or change search
-mode to get around a limit. Check `truncated` and coverage notes before claiming
+persist on a company or people search, report them and stop. Do not remove
+required filters or change search mode to get around a limit. Post searches are
+the exception: if one keeps failing with busy, unavailable or timeout errors,
+use the other, say which one answered, and say which requirements it could not
+apply. Rate-limit and permission errors apply to both post searches, so wait or
+stop as `retry` says. Check `truncated` and coverage notes before claiming
 that a result set is complete.
 
 ## Large results
