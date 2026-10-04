@@ -32,7 +32,7 @@ Discovery collects evidence for a chosen group of accounts. Choose the tool or s
 | Which companies match stored facts or have someone in a role? | Use `trayo_find_companies` with `mode: "direct"` and `filters`. Omit `query`. Read skill `build-account-list`. |
 | Which people have a role at employers that match the criteria? | Use `trayo_find_people` with `mode: "direct"`. Set title and employer filters. Read skill `find-stakeholders`. |
 | Who started a role recently? | Use `trayo_search_job_changes` with `title`, `startedSince`, and supported `destinationFilters`. |
-| Which recent posts discuss a topic, a need or a named product? | Use `trayo_search_posts`. Describe the topic in plain words. It matches by meaning and by keyword over up to 30 days. Posts arrive over about 10 days, so keep the window at 21 days or more and filter to the requested dates by `publishedAt`. Apply required words and exclusions by reading the posts. |
+| Which recent posts discuss a topic, a need or a named product? | Use `trayo_search_posts`. Describe the topic in plain words. It matches by meaning and by keyword over up to 30 days. Posts arrive over about 10 days, so keep the window at 21 days or more unless the user set a shorter period, and filter to the requested dates by `publishedAt`. Keep exclusions out of the topic, since every word in it is searched for. Apply required words and exclusions by reading the posts. |
 | Which companies resemble known examples or match a search by meaning? | Use `trayo_find_lookalikes` or sentence search from skill `build-account-list`. Keep every requirement. |
 | What information is missing for a named company or person? | Use skill `research-account` or skill `research-person`. |
 | Which accounts show the requested business events? | If existing events are sufficient, use them. Otherwise, read skill `find-intent-accounts` or skill `discover-signals` for the chosen account group. |
@@ -125,9 +125,9 @@ This filter uses the month that a role started. It does not use the date when th
 CRM means customer relationship management. The user asks for posts about CRM migrations during the past seven days, excluding job ads. Use `trayo_search_posts` with these inputs:
 
 - Set `topic: "moving to a new CRM or migrating CRM data"`.
-- Set `windowDays: 30`. Posts arrive over about 10 days, so a seven-day window would come back nearly empty.
+- Set `windowDays: 7` and `limit: 50`. Posts arrive over about 10 days, so most of the past seven days has not arrived yet: say so, and offer a 30-day search with posts labelled by date if older posts help.
 
-Keep the posts from the past seven days by `publishedAt`, and say that the most recent days are incomplete. The search has no exclusion filter: drop job ads by reading the posts, and say the exclusion was applied by reading. Cite the post evidence. A mention does not prove a buying project.
+The search has no exclusion filter, and every word in the topic is searched for, so keep "job ads" out of the topic. Drop job ads by reading the posts, and say the exclusion was applied by reading. `text` is cut at 600 characters: a cut post that does not show a required word stays as unconfirmed. Cite the post evidence. A mention does not prove a buying project.
 
 If the request requires 90 days, explain the 30-day limit. Do not silently reduce the period. Do not claim that discovery can retrieve 90 days of these posts.
 

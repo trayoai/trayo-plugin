@@ -239,17 +239,21 @@ For recent LinkedIn posts, call `trayo_search_posts` with a plain-language
 {
   "topic": "moving to a new CRM or migrating CRM data",
   "windowDays": 30,
-  "limit": 10
+  "limit": 50
 }
 ```
 
 It searches the whole market, not only your accounts, by meaning and by keyword,
 over up to the last 30 days. Posts arrive over about 10 days, so keep the window
-at 21 days or more, keep only the posts inside the requested dates by
-`publishedAt`, and say that the most recent days are incomplete. There is no
-exact-word or exclusion filter: put a named product or required phrase in the
-topic, then read each post, drop the ones that do not say it or that match an
-exclusion (job ads, for example), and say the requirement was applied by reading.
+at 21 days or more unless the user set a shorter period, keep only the posts
+inside the requested dates by `publishedAt`, and say that the most recent days
+are incomplete. There is no exact-word or exclusion filter. Put a named product
+or required phrase in the topic, but keep exclusions out of it: every word in
+the topic is searched for, not excluded. Ask for `limit: 50` when you will drop
+posts by reading. Then drop the posts that match an exclusion (job ads, for
+example) or clearly miss a requirement, and say the requirement was applied by
+reading. `text` is cut at 600 characters: if a cut post does not show a
+required word, keep it as unconfirmed or open its `url` rather than dropping it.
 At most 50 posts are returned, best match first. There is no post pagination or
 global match count, and zero results do not establish absence. Check each
 author's `company` against the account before attributing a post. Cite returned
