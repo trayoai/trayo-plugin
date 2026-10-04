@@ -32,8 +32,7 @@ Discovery collects evidence for a chosen group of accounts. Choose the tool or s
 | Which companies match stored facts or have someone in a role? | Use `trayo_find_companies` with `mode: "direct"` and `filters`. Omit `query`. Read skill `build-account-list`. |
 | Which people have a role at employers that match the criteria? | Use `trayo_find_people` with `mode: "direct"`. Set title and employer filters. Read skill `find-stakeholders`. |
 | Who started a role recently? | Use `trayo_search_job_changes` with `title`, `startedSince`, and supported `destinationFilters`. |
-| Which recent posts discuss a topic or a need? | Use `trayo_search_posts`. Describe the topic in plain words. It matches by meaning and by keyword over up to 30 days. Posts arrive over about 10 days, so keep the window at 21 days or more and filter to the requested dates by `publishedAt`. |
-| Which recent posts contain exact words? | Use `trayo_search_posts_by_keywords` for a named product, a required phrase, or phrases to exclude. Require each idea and allow its synonyms. It searches only the last seven days. Posts arrive over about 10 days, so most of that period is still empty. Read which data the tool searched. |
+| Which recent posts discuss a topic, a need or a named product? | Use `trayo_search_posts`. Describe the topic in plain words. It matches by meaning and by keyword over up to 30 days. Posts arrive over about 10 days, so keep the window at 21 days or more unless the user set a shorter period, and filter to the requested dates by `publishedAt`. Keep exclusions out of the topic, since every word in it is searched for. Apply required words and exclusions by reading the posts. |
 | Which companies resemble known examples or match a search by meaning? | Use `trayo_find_lookalikes` or sentence search from skill `build-account-list`. Keep every requirement. |
 | What information is missing for a named company or person? | Use skill `research-account` or skill `research-person`. |
 | Which accounts show the requested business events? | If existing events are sufficient, use them. Otherwise, read skill `find-intent-accounts` or skill `discover-signals` for the chosen account group. |
@@ -46,7 +45,7 @@ Search and research do not save records. Imports, saved people, signal creation,
 
 Use domains or IDs that you already know are correct. Reuse relevant context. If industry values are needed, use `trayo_list_industries`. CTO means chief technology officer. For job titles, include equivalent spellings such as `title.any: ["cto", "chief technology officer"]`.
 
-OR means that any alternative can match. AND means that all requirements must match. For keyword post searches, place synonyms for one idea in the same group. Place each required idea in a separate group. Make sure that the search stays within the tool's term limits.
+OR means that any alternative can match. AND means that all requirements must match.
 
 Preserve companies, people, number limits, dates, locations, and excluded terms. Do not replace a CTO request with every executive role. Do not infer a technology from company size. Do not silently shorten the required time period.
 
@@ -59,8 +58,8 @@ Choose work that can supply the required evidence. Read-only does not mean free.
 | Work | Cost and time |
 | --- | --- |
 | Existing results, lists, events, or saved result pages | These avoid repeated work. Make sure that they cover the request. Make sure that they are recent and complete. |
-| Direct company, people, job-change, or keyword post searches (when exact words must appear) | These read stored data without sentence interpretation or external research. Use them when their fields answer the request. Read their data and capacity limits. |
-| Searches by meaning, similar companies, or research for a named company or person | Use these when stored filters cannot answer the request. For posts on a topic or a need, `trayo_search_posts` is the first choice, not a fallback. Read the tool's allowance and timing guidance. A retry can use allowance again. |
+| Direct company, people, or job-change searches | These read stored data without sentence interpretation or external research. Use them when their fields answer the request. Read their data and capacity limits. |
+| Searches by meaning, similar companies, or research for a named company or person | Use these when stored filters cannot answer the request. Post evidence comes from `trayo_search_posts`. Read the tool's allowance and timing guidance. A retry can use allowance again. |
 | Discovery for a chosen account group | Discovery runs in the background. Use it for supported events that existing results do not cover. If possible, narrow the account group first. Follow the selected skill's rules for samples, run sizes, and permission. |
 
 These choices are not a required sequence. If the known task requires discovery, start with discovery. A rate-limit bucket controls how often calls can run. The bucket name `expensive` does not state a price or completion time.
@@ -91,7 +90,7 @@ Read `code` and `retry` before handling an error:
 - For `retry_later`, wait for the given delay before retrying.
 - For `do_not_retry`, stop.
 
-If the retry guidance permits it, repeat the same arguments. Run retries one at a time. An error does not mean zero matches. If errors continue, report the failure instead of looping. Post searches are the exception: if one keeps failing for any reason other than a rate limit or a missing permission, use the other post search and state which requirements it could not apply. Rate-limit and permission errors apply to both.
+If the retry guidance permits it, repeat the same arguments. Run retries one at a time. An error does not mean zero matches. If errors continue, report the failure instead of looping.
 
 Continue only within the user's existing permission. Stop when the result is complete, the source has no more results, or a limit blocks further work. If further work needs permission, ask before continuing. Do not weaken the requirements to fill a requested count. For each important change, explain what the result showed and why the next call helps.
 
@@ -123,19 +122,14 @@ This filter uses the month that a role started. It does not use the date when th
 
 ### Posts about CRM migrations
 
-CRM means customer relationship management. The user asks for posts about CRM migrations during the past seven days, excluding job ads. The exclusion needs exact words, so use `trayo_search_posts_by_keywords` with these inputs:
+CRM means customer relationship management. The user asks for posts about CRM migrations during the past seven days, excluding job ads. Use `trayo_search_posts` with these inputs:
 
-- Set `concepts: [["CRM", "customer relationship management"], ["migration", "migrations", "migrating"]]`.
-- Set `windowDays: 7`.
-- Set `excludedPhrases` for the requested exclusion.
+- Set `topic: "moving to a new CRM or migrating CRM data"`.
+- Set `windowDays: 7` and `limit: 50`. Posts arrive over about 10 days, so most of the past seven days has not arrived yet: say so, and offer a 30-day search with posts labelled by date if older posts help.
 
-Read `applied`. Examine results for job ads that the phrase exclusions missed. Cite the post evidence. A mention does not prove a buying project.
+The search has no exclusion filter, and every word in the topic is searched for, so keep "job ads" out of the topic. Drop job ads by reading the posts, and say the exclusion was applied by reading. `text` is cut at 600 characters: a cut post that does not show a required word stays as unconfirmed. Cite the post evidence. A mention does not prove a buying project.
 
-If this search keeps failing, use `trayo_search_posts` with `topic: "moving to a new CRM"` and `windowDays: 30`, keep the posts from the past seven days by `publishedAt`, drop job ads by reading them, and say the exclusion was applied by reading, not by the search.
-
-If the user asks only about the topic, with no exact words or exclusions, use `trayo_search_posts` with a `topic` such as "moving to a new CRM" and `windowDays: 30`, then keep the posts inside the requested dates by `publishedAt` and say the most recent days are incomplete.
-
-If the request requires 90 days, explain the seven-day keyword limit and the 30-day topic limit. Do not silently reduce the period. Do not claim that discovery can retrieve 90 days of these posts.
+If the request requires 90 days, explain the 30-day limit. Do not silently reduce the period. Do not claim that discovery can retrieve 90 days of these posts.
 
 ### Expansion events at target accounts
 
