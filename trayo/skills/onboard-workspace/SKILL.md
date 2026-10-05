@@ -14,7 +14,8 @@ writes it.
 
 Never run this flow blind. Call both:
 
-1. `trayo_get_workspace` (free, read-only) — read `stakeholderCriteria` and `solutions`.
+1. `trayo_get_workspace` (free) — read `stakeholderCriteria` and `solutions`.
+   This call can also look up a missing workspace brand from its website and save the profile and images.
 2. `trayo_list_accounts` and `trayo_list_signals` — read whether either is non-empty.
 
 If **any** of those four are already set, stop and tell the user what you found instead of

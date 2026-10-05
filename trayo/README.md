@@ -94,7 +94,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.12. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.13. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 
@@ -165,7 +165,7 @@ the next request; removing your membership revokes access. Workspace plan and us
 
 - The Trayo tools, always loaded (no tool-search deferral), including `trayo_whoami`, `trayo_get_workspace`, `trayo_set_workspace`, `trayo_import_accounts`, `trayo_list_accounts`, `trayo_update_account`, `trayo_list_signals`, `trayo_create_signal`, `trayo_run_discovery`, `trayo_get_discovery`, `trayo_list_events`, `trayo_find_companies`, `trayo_find_lookalikes`, `trayo_find_people`, `trayo_list_industries`, `trayo_search_posts`, `trayo_search_stakeholders`, `trayo_research_company`, `trayo_research_person`, `trayo_research_person_batch`, `trayo_search_job_changes`, `trayo_add_to_list`, `trayo_list_lists`, `trayo_get_list_members`, `trayo_add_people`, `trayo_list_people`, `trayo_enrich_emails`, `trayo_enrich_phones`, `trayo_get_contacts`, `trayo_read_result`.
 - Skills, invoked automatically when you describe the job: `/trayo:plan-gtm-work`, `/trayo:build-app`, `/trayo:onboard-workspace`, `/trayo:find-intent-accounts`, `/trayo:build-account-list`, `/trayo:research-account`, `/trayo:research-person`, `/trayo:scan-for-signal`, `/trayo:check-account-events`, `/trayo:find-stakeholders`, `/trayo:enrich-contacts`, `/trayo:recent-movers`, `/trayo:discover-signals`.
-- The data workflow skills end the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before anything is written — keep it in Trayo (a list or a signal), run it again when asked (a REST recipe), or hand it off (a CSV or a file). The planning skill states the result, required evidence, chosen tools, and first set of records to search. Planning does not add an approval step. The app-building skill hands back the app and its verification results.
+- The data workflow skills end the same way: what to hand back, the checkpoints that must already have happened, then three exits offered before acting on the chosen exit — keep it in Trayo (a list or a signal), run it again when asked (a REST recipe), or hand it off (a CSV or a file). The planning skill states the result, required evidence, chosen tools, and first set of records to search. Planning does not add an approval step. The app-building skill hands back the app and its verification results.
 
 ## Build apps with Trayo
 
@@ -181,9 +181,9 @@ The skill covers source vendoring, the provided people and company components, a
 - **Configure a brand-new workspace** — `/trayo:onboard-workspace`: `trayo_get_workspace` (check it isn't already set up) → `trayo_set_workspace` → `trayo_find_companies` + `trayo_import_accounts` → `trayo_create_signal` → `trayo_run_discovery`. The API-only equivalent of what the app's own onboarding does.
 - **Find companies showing intent** — `/trayo:find-intent-accounts`: `trayo_list_signals` → `trayo_find_companies` (a pool that fits your ICP) → `trayo_import_accounts` (a test sample of 100) → `trayo_run_discovery` → `trayo_list_events` → rank the companies by how many different signals each hit, tune the ICP and the signals, then run on the rest of the pool.
 - **Build accounts from criteria** — `/trayo:build-account-list`: `trayo_find_companies` → `trayo_import_accounts` → `trayo_add_to_list`.
-- **Find, then add** — search, find and research tools save nothing, so iterate on a search until the set is right. Then add what you chose: companies with `trayo_import_accounts`, people with `trayo_add_people`. Importing an account adds no people.
+- **Find, then add** — search, find and research tools do not add prospect records, so iterate on a search until the set is right. Then add what you chose: companies with `trayo_import_accounts`, people with `trayo_add_people`. Importing an account adds no people.
 - **Resume from workspace state** — `trayo_list_accounts` returns existing accounts and their reusable ids; `trayo_list_industries` returns the exact values accepted by industry filters.
-- **Find companies like these** — `trayo_find_lookalikes`: send `companies` and `limit`, get ranked high/medium/low matches with reusable `companyId` values. Supply an exact company ID, or resolve by LinkedIn company URL, then website, then name. Nothing is saved unless you import the results.
+- **Find companies like these** — `trayo_find_lookalikes`: send `companies` and `limit`, get ranked high/medium/low matches with reusable `companyId` values. Supply an exact company ID, or resolve by LinkedIn company URL, then website, then name. No accounts are added unless you import the results.
 - **Research an account, or a person** — `/trayo:research-account` (`trayo_research_company` + `trayo_search_stakeholders` + `trayo_list_events`) and `/trayo:research-person` (`trayo_research_person`, by professional profile or workspace person).
 - **Read the signals found for an account** — `trayo_list_events` with `accountId` returns what discovery found. The events carry no significance or relevance score, so they come back unranked.
 - **Scan a list of accounts for one signal** — `/trayo:scan-for-signal`: `trayo_create_signal` → `trayo_run_discovery` → `trayo_list_events`.
@@ -230,7 +230,7 @@ it has a matching current employee. Send the same filters to `trayo_find_people`
 to return those people and their matching current company. `perCompany` defaults
 to 4 and can be at most 25; read the truncation notes when this cap binds.
 Company filters describe the employer, and `hq` is company headquarters, not the
-person's location. These searches add nothing to the workspace.
+person's location. These searches do not add accounts or people to the workspace.
 
 Filters alone need at least one of `industries`, `hq.cities`, `hq.states` or
 `headcount` to select companies; a people search can name `companyWebsites`
@@ -285,9 +285,11 @@ that a result set is complete.
 
 Company and people searches, lookalikes, people/list-member/contact reads,
 stakeholder, job-change and post searches, events, and discovery results accept
-`output: "auto" | "inline" | "file"`. The default is `auto`: results above
+`output: "auto" | "inline" | "file" | "pages"`. The default is `auto`: results above
 25 rows or 20 KiB become a compact preview and an expiring JSON download.
 `file` always requests a download; `inline` prefers inline data up to 100 KiB.
+File and page delivery may save a private result file so you can download or
+page through it without repeating the search.
 
 Read `delivery` before accessing rows. For `inline`, the original result fields
 remain available. For `file`, use `preview` and `metadata` for discussion, and
