@@ -239,10 +239,11 @@ a filter is missing, not that nothing matched. When a filters-only search names
 no companies, industry, city, state or size, as in "find people with the title
 Marketing Manager", the skills do not stop to ask. They read
 `trayo_get_workspace` and use the ICP's industries, mapped to accepted values.
-With a saved ICP they also use its size band, capped at 50,000 employees;
-otherwise they search companies with at most 10,000 people. A sentence search
-with `query` needs no added company filter. The skills tell you which filters they chose and where they came
-from, and offer to narrow or widen them. A direct title search checks at most
+With a saved ICP whose industries map, they also use its size band, capped at
+50,000 employees; otherwise they search companies with at most 10,000 people.
+A sentence search with `query` needs no added company filter. The skills tell
+you which filters they chose and where they came from, and offer to narrow or
+widen them. A direct title search checks at most
 the first 30 companies in `sort` order, largest first by default, and the
 response notes say when it stopped short.
 
