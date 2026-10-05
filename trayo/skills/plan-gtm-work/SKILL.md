@@ -39,7 +39,7 @@ Discovery collects evidence for a chosen group of accounts. Choose the tool or s
 | Which contact details are needed for selected people? | Select the people first. Make sure that enough allowance remains. Read skill `enrich-contacts`. |
 | Which tools support the requested app? | Match the app requirements to tools with skill `build-app`. |
 
-Search and research do not save records. Imports, saved people, signal creation, and contact lookups require a need in the task and existing permission. Do not run discovery for a search of stored attributes. Do not add contact lookups to a research brief.
+Search and research do not add prospect records. Imports, saved people, signal creation, and contact lookups require a need in the task and existing permission. Do not run discovery for a search of stored attributes. Do not add contact lookups to a research brief.
 
 ## Add equivalent search terms
 
