@@ -94,7 +94,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.11. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.12. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 
@@ -231,6 +231,21 @@ to return those people and their matching current company. `perCompany` defaults
 to 4 and can be at most 25; read the truncation notes when this cap binds.
 Company filters describe the employer, and `hq` is company headquarters, not the
 person's location. These searches add nothing to the workspace.
+
+Filters alone need at least one of `industries`, `hq.cities`, `hq.states` or
+`headcount` to select companies; a people search can name `companyWebsites`
+instead. Without one, the search answers `find_needs_indexed_filter`, which means
+a filter is missing, not that nothing matched. When a filters-only search names
+no companies, industry, city, state or size, as in "find people with the title
+Marketing Manager", the skills do not stop to ask. They read
+`trayo_get_workspace` and use the ICP's industries, mapped to accepted values.
+With a saved ICP whose industries map, they also use its size band, capped at
+50,000 employees; otherwise they search companies with at most 10,000 people.
+A sentence search with `query` needs no added company filter. The skills tell
+you which filters they chose and where they came from, and offer to narrow or
+widen them. A direct title search checks at most
+the first 30 companies in `sort` order, largest first by default, and the
+response notes say when it stopped short.
 
 For recent LinkedIn posts, call `trayo_search_posts` with a plain-language
 `topic`, for example:

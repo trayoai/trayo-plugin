@@ -7,7 +7,7 @@
       "name": "trayo",
       "source": "./trayo",
       "description": "Trayo MCP server plus skills to plan GTM work, build apps with Trayo GTM UI, onboard a workspace, find companies showing intent, build an account list, research an account or a person, scan for a signal, check account events, find stakeholders, enrich contacts, recent movers, and the core discovery loop.",
-      "version": "0.6.11"
+      "version": "0.6.12"
     }
   ]
 }

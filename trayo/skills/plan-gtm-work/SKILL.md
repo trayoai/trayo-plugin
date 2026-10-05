@@ -30,7 +30,7 @@ Discovery collects evidence for a chosen group of accounts. Choose the tool or s
 | Question | Tool or skill |
 | --- | --- |
 | Which companies match stored facts or have someone in a role? | Use `trayo_find_companies` with `mode: "direct"` and `filters`. Omit `query`. Read skill `build-account-list`. |
-| Which people have a role at employers that match the criteria? | Use `trayo_find_people` with `mode: "direct"`. Set title and employer filters. Read skill `find-stakeholders`. |
+| Which people have a role at employers that match the criteria? | Use `trayo_find_people` with `mode: "direct"`. Set title and employer filters. With no employer criteria, take `industries` from the workspace profile and, when one of them maps to an accepted value, `headcount` from a saved profile (`max` at most 50,000), or else use `headcount: { min: 1, max: 10000 }`. Read skill `find-stakeholders`. |
 | Who started a role recently? | Use `trayo_search_job_changes` with `title`, `startedSince`, and supported `destinationFilters`. |
 | Which recent posts discuss a topic, a need or a named product? | Use `trayo_search_posts`. Describe the topic in plain words. It matches by meaning and by keyword over up to 30 days. Posts arrive over about 10 days, so keep the window at 21 days or more unless the user set a shorter period, and filter to the requested dates by `publishedAt`. Keep exclusions out of the topic, since every word in it is searched for. Apply required words and exclusions by reading the posts. |
 | Which companies resemble known examples or match a search by meaning? | Use `trayo_find_lookalikes` or sentence search from skill `build-account-list`. Keep every requirement. |
@@ -109,6 +109,16 @@ This call returns companies. Do not fetch people for every company. Do not run d
 ### People at matching employers
 
 The user asks for CTOs at companies with 50–200 employees. Use the previous example's title and headcount filters in `trayo_find_people` with `mode: "direct"`. The tool matches the current role to the current employer. Do not run a separate company search. Before reporting a shortfall, read `perCompany` and any cutoff notes.
+
+### People with a title at any company
+
+The user asks for people with the title Marketing Manager and names no company, industry, city, state or size. This is a filters-only search, so do not ask which companies to search. Read `trayo_get_workspace`. When `buyerProfile.industries` is not empty and `buyerProfileSource` is `saved` or `partial`, map each industry to an exact value from `trayo_list_industries`, and use `trayo_find_people` with these inputs:
+
+- Set `mode: "direct"`.
+- Set `filters.industries` to the mapped profile industries and `filters.title` to `{ any: ["marketing manager"] }`.
+- Set `filters.headcount` to `buyerProfile.sizeBand` when the profile is `saved`, with `max` lowered to 50,000 if it is higher. Otherwise set it to `{ min: 1, max: 10000 }`.
+
+When no profile industry maps, or there is no profile, set `filters: { headcount: { min: 1, max: 10000 }, title: { any: ["marketing manager"] } }` instead. Skill `find-stakeholders` covers a country-only request and the other cases. Tell the user which company filters you chose, where they came from, and which profile industries did not map, and offer to narrow or widen them. Do not say every company was searched: a direct title search checks at most the first 30 companies in `sort` order, largest first by default, and notes such as `company_fan_out_limit_reached` say when more companies matched.
 
 ### People who started a role recently
 
