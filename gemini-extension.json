@@ -1,6 +1,6 @@
 {
   "name": "trayo",
-  "version": "0.6.13",
+  "version": "0.6.14",
   "description": "Build apps with Trayo GTM UI, find companies, lookalikes and people, research accounts and the people at them, look up contact details, define signals, run discovery, and read events with Trayo.",
   "contextFileName": "GEMINI.md",
   "mcpServers": {
