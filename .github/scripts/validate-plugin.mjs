@@ -67,6 +67,48 @@ function validateCursorPlugin(root, claudeEntry, claudePlugin) {
   );
 }
 
+// Codex reads trayo/.codex-plugin/plugin.json before the Claude manifest, and takes its name, logo and
+// links only from `interface`. Skills and the MCP server stay on the defaults (trayo/skills, trayo/.mcp.json),
+// so an inline skills or mcpServers entry would bypass the trayo/.mcp.json checks.
+const codexPluginKeys = new Set(['name', 'version', 'description', 'keywords', 'interface']);
+const codexInterfaceKeys = new Set([
+  'displayName', 'developerName', 'websiteURL', 'privacyPolicyURL', 'termsOfServiceURL', 'composerIcon', 'logo',
+]);
+
+function validateCodexPlugin(root, claudePlugin) {
+  const plugin = readJson(root, 'trayo/.codex-plugin/plugin.json');
+  const ui = plugin.interface ?? {};
+
+  invariant(
+    Object.keys(plugin).every((key) => codexPluginKeys.has(key)),
+    `Codex plugin may only set ${[...codexPluginKeys].join(', ')}.`,
+  );
+  invariant(
+    Object.keys(ui).every((key) => codexInterfaceKeys.has(key)),
+    `Codex plugin interface may only set ${[...codexInterfaceKeys].join(', ')}.`,
+  );
+  for (const field of ['name', 'version', 'description']) {
+    invariant(plugin[field] === claudePlugin[field], `Codex plugin ${field} must match the Claude plugin manifest.`);
+  }
+  invariant(
+    JSON.stringify(plugin.keywords) === JSON.stringify(claudePlugin.keywords),
+    'Codex plugin keywords must match the Claude plugin manifest.',
+  );
+  invariant(ui.displayName === claudePlugin.displayName, 'Codex plugin displayName must match the Claude plugin manifest.');
+  invariant(ui.websiteURL === claudePlugin.homepage, 'Codex plugin websiteURL must match the Claude plugin homepage.');
+  invariant(
+    ui.privacyPolicyURL === claudePlugin.privacyPolicyUrl && ui.termsOfServiceURL === claudePlugin.termsOfServiceUrl,
+    'Codex plugin policy links must match the Claude plugin manifest.',
+  );
+  // Codex resolves interface paths only when they start with `./`, relative to the plugin root.
+  for (const field of ['logo', 'composerIcon']) {
+    invariant(
+      typeof ui[field] === 'string' && ui[field].startsWith('./') && isPluginSvg(root, ui[field]),
+      `Codex plugin interface.${field} must be a ./ path to an SVG file inside trayo/.`,
+    );
+  }
+}
+
 // Claude Code refuses to install a plugin whose plugin.json has a field it cannot parse, and an inline
 // mcpServers entry would bypass the trayo/.mcp.json checks. Add a field only after
 // `claude plugin validate .` accepts it.
@@ -202,6 +244,7 @@ export function validatePlugin(root = process.cwd()) {
   invariant(isPluginSvg(root, plugin.icon), 'Plugin icon must be an SVG file inside trayo/.');
 
   validateCursorPlugin(root, marketplacePlugin, plugin);
+  validateCodexPlugin(root, plugin);
   validateGeminiExtension(root, plugin);
   validatePublicFiles(root);
 
