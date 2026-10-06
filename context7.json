@@ -1,0 +1,15 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Trayo",
+  "description": "Trayo REST API and MCP server for GTM teams: buying signals, company and people search, lookalikes, account research, contact enrichment, discovery and events.",
+  "folders": [],
+  "excludeFolders": [".github", ".claude-plugin", ".codex-plugin", ".cursor-plugin"],
+  "excludeFiles": ["LICENSE"],
+  "rules": [
+    "The REST reference is https://api.trayo.ai/llms-full.txt (OpenAPI 3.1 at https://api.trayo.ai/openapi.json). Read it before writing a client; several routes are asynchronous or do not paginate.",
+    "To connect Trayo to Claude Code, Codex, Cursor or another MCP client, follow https://api.trayo.ai/agent-install.txt. The MCP server is https://api.trayo.ai/v1/mcp and uses OAuth sign-in, not an API key.",
+    "Start a session with trayo_whoami (MCP) or GET https://api.trayo.ai/v1/whoami (REST) to confirm the workspace, plan and limits.",
+    "Scripts and integrations authenticate with Authorization: Bearer <workspace API key>; MCP OAuth tokens do not work on the REST API.",
+    "Apps built on Trayo use Trayo GTM UI as their default UI foundation; read https://ui.trayo.ai/llms.txt before writing UI code."
+  ]
+}

@@ -1,0 +1,50 @@
+name: Refresh Context7
+
+# Context7 indexes this repository as the library /trayoai/trayo-plugin so coding
+# agents get the current skills and setup docs. On its own it re-reads a
+# low-traffic library every 45 days; this asks it to re-read on every push to
+# main. The request is a courtesy call: it never blocks a merge or a release.
+#
+# Needs the CONTEXT7_API_KEY repository secret (from the Context7 dashboard).
+# Without it the job logs a notice and exits 0.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: context7-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    name: Refresh Context7 library
+    if: github.repository == 'trayoai/trayo-plugin'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Trigger Context7 refresh
+        env:
+          CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
+          LIBRARY_NAME: /${{ github.repository }}
+        run: |
+          set -uo pipefail
+          if [ -z "$CONTEXT7_API_KEY" ]; then
+            echo "::notice::CONTEXT7_API_KEY not set; skipping Context7 refresh"
+            exit 0
+          fi
+          body="$(mktemp)"
+          status="$(curl -sS -o "$body" -w '%{http_code}' -X POST https://context7.com/api/v1/refresh \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${CONTEXT7_API_KEY}" \
+            -d "{\"libraryName\":\"${LIBRARY_NAME}\"}")" || status="curl-failed"
+          case "$status" in
+            2*) echo "Refreshed ${LIBRARY_NAME}" ;;
+            *) echo "::warning::Context7 refresh for ${LIBRARY_NAME} returned ${status}: $(cat "$body")" ;;
+          esac
+          exit 0
