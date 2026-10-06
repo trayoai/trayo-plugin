@@ -1,5 +1,7 @@
 {
   "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/trayoai/trayo-plugin",
+  "public_key": "pk_F3ULhVak5snD0gCjFdPaM",
   "projectTitle": "Trayo",
   "description": "Trayo REST API and MCP server for GTM teams: buying signals, company and people search, lookalikes, account research, contact enrichment, discovery and events.",
   "folders": [],
