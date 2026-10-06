@@ -94,7 +94,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.14. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.15. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 
