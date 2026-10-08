@@ -21,7 +21,7 @@ Buying intent means interest in making a purchase. If the task seeks buying inte
 
 Read current tool definitions before choosing inputs. Filters limit which records a search returns. For each requirement, name the tool, its inputs, the information it needs, and the evidence it must return. If no tool supports a requirement, state this limit. Do not count a result as a match without the required evidence.
 
-Do not invent a filter or replace a requirement with a related fact. For example, a company that sells to hospitals does not necessarily belong to the healthcare industry. A company headquarters address does not establish where a person lives.
+Do not invent a filter or replace a requirement with a related fact. For example, a company that sells to hospitals does not necessarily belong to the healthcare industry. A company headquarters address does not establish where a person lives; to filter people by where they live, use `filters.person` on `trayo_find_people`, which matches the location the person states on their LinkedIn profile.
 
 Use the fewest calls that can answer the request. If one tool supports several requirements, combine them in one search. A company search can combine company criteria and a job title. A people search can combine a current role and current employer criteria. Add another step only for a missing requirement or a requested output.
 

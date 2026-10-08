@@ -94,7 +94,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.15. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.16. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 
@@ -230,7 +230,11 @@ it has a matching current employee. Send the same filters to `trayo_find_people`
 to return those people and their matching current company. `perCompany` defaults
 to 4 and can be at most 25; read the truncation notes when this cap binds.
 Company filters describe the employer, and `hq` is company headquarters, not the
-person's location. These searches do not add accounts or people to the workspace.
+person's location. To filter people by where they live, add `filters.person`
+(`countries`, `states`, `cities`) to a people search without `query`. It matches
+the location the person states on their LinkedIn profile, which is not a verified
+address. `cities` and `states` also need named companies or an indexed company
+filter. These searches do not add accounts or people to the workspace.
 
 Filters alone need at least one of `industries`, `hq.cities`, `hq.states` or
 `headcount` to select companies; a people search can name `companyWebsites`
