@@ -63,7 +63,7 @@ Choose work that can supply the required evidence. Read-only does not mean free.
 | Searches by meaning, similar companies, or research for a named company or person | Use these when stored filters cannot answer the request. Post evidence comes from `trayo_search_posts`. Read the tool's allowance and timing guidance. A retry can use allowance again. |
 | Discovery for a chosen account group | Discovery runs in the background. Use it for supported events that existing results do not cover. If possible, narrow the account group first. Follow the selected skill's rules for samples, run sizes, and permission. |
 
-These choices are not a required sequence. If the known task requires discovery, start with discovery. A rate-limit bucket controls how often calls can run. The bucket name `expensive` does not state a price or completion time.
+These choices are not a required sequence. If the known task requires discovery, start with discovery. A rate-limit bucket controls how often calls can run. Each tool description names its bucket. The `expensive` bucket allows 7 calls per minute for the whole workspace by default. `trayo_whoami` shows the exact value. Run calls from the `expensive` bucket one at a time, never several at once. Prefer larger pages or batch tools to many small calls. The bucket name does not state a price or completion time.
 
 Do not invent prices, completion times, or success rates. If a cost or time is unknown, state that it is unknown. To size further work, use results from a representative first pass. Label predicted numbers as estimates. Do not present estimates as measured or guaranteed results.
 
