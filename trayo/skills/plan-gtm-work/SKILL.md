@@ -113,7 +113,7 @@ The user asks for CTOs at companies with 50–200 employees. Use the previous ex
 
 ### People with a title at any company
 
-The user asks for people with the title Marketing Manager and names no company, industry, city, state or size. This is a filters-only search, so do not ask which companies to search. Read `trayo_get_workspace`. When `buyerProfile.industries` is not empty and `buyerProfileSource` is `saved` or `partial`, map each industry to an exact value from `trayo_list_industries`, and use `trayo_find_people` with these inputs:
+The user asks for people with the title Marketing Manager and names no company, industry, city, state, size or funding stage. This is a filters-only search, so do not ask which companies to search. Read `trayo_get_workspace`. When `buyerProfile.industries` is not empty and `buyerProfileSource` is `saved` or `partial`, map each industry to an exact value from `trayo_list_industries`, and use `trayo_find_people` with these inputs:
 
 - Set `mode: "direct"`.
 - Set `filters.industries` to the mapped profile industries and `filters.title` to `{ any: ["marketing manager"] }`.
