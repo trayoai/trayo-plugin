@@ -10,6 +10,7 @@ You sign in with your Trayo account in the browser the first time a Trayo tool i
 - **OAuth sign-in.** The server requires OAuth 2.0 authorization. Your client opens a Trayo sign-in page in your browser, you approve access to a workspace, and the client stores and refreshes the access token. The plugin itself contains no key, token, or secret.
 - **What is sent to Trayo.** Each tool call sends its arguments to the Trayo MCP server over HTTPS, for example company names, websites and professional profile URLs, search criteria, signal definitions, and the IDs of accounts, people and lists in your workspace. Write tools change your workspace (importing accounts, adding people, saving lists and signals, starting discovery), and contact lookups draw on your workspace's lookup allowance.
 - **What comes back.** Company, people, contact, signal, and event data from your workspace and from Trayo's company and people data. A large result can come back as a preview plus a time-limited download link that the agent fetches in code when you want the complete result.
+- **Usage analytics.** For each MCP request, Trayo records usage analytics: the tool called, how long it took, whether it succeeded and the error type, your MCP client's name and version, the request headers (which include your IP address and user agent) with credentials removed, the request's MCP metadata (`_meta`), which some clients use to send details such as a local workspace path or git commit, and your Trayo user and workspace IDs. Every tool also accepts an optional `conversation_id`: a random ID the server issues and asks the agent to pass back, so that calls from one conversation can be grouped. It contains no content. Tool arguments, tool results, and your prompts are not sent to analytics. See the [Trayo privacy policy](https://trayo.ai/privacy-policy).
 - **Skills.** Skill instruction files that tell the agent which Trayo tools to call and in what order. Several point the agent to Trayo's public API documentation at [https://api.trayo.ai](https://api.trayo.ai) when you want a REST script. `/trayo:build-app` also reads the public Trayo GTM UI guide at [https://ui.trayo.ai](https://ui.trayo.ai) and, when you ask it to build an app, copies the public `trayoai/ui` source from GitHub into your project with `npx degit`.
 - **Gemini CLI context.** In Gemini CLI, the extension also loads a short `GEMINI.md` into each session: what Trayo is, how to sign in, and to call `trayo_whoami` first.
 
@@ -94,7 +95,7 @@ codex plugin list --json
 codex mcp get trayo --json
 ```
 
-The plugin list should show Trayo version 0.6.16. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
+The plugin list should show Trayo version 0.6.17. The MCP result should show the fixed URL. Then ask Codex to call `trayo_whoami`.
 
 ### Cursor
 
