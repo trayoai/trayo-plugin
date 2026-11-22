@@ -8,9 +8,9 @@
   "excludeFolders": [".github", ".claude-plugin", ".codex-plugin", ".cursor-plugin"],
   "excludeFiles": ["LICENSE"],
   "rules": [
-    "The REST reference is https://api.trayo.ai/llms-full.txt (OpenAPI 3.1 at https://api.trayo.ai/openapi.json). Read it before writing a client; several routes are asynchronous or do not paginate.",
-    "To connect Trayo to Claude Code, Codex, Cursor or another MCP client, follow https://api.trayo.ai/agent-install.txt. The MCP server is https://api.trayo.ai/v1/mcp and uses OAuth sign-in, not an API key.",
-    "Start a session with trayo_whoami (MCP) or GET https://api.trayo.ai/v1/whoami (REST) to confirm the workspace, plan and limits.",
+    "The REST reference is https://api.trayo.ai/v2/llms.txt (OpenAPI at https://api.trayo.ai/v2/openapi.json, task recipes at https://api.trayo.ai/v2/recipes). Read it before writing a client; discoveries are asynchronous and searches return pages.",
+    "To connect Trayo to Claude Code, Codex, Cursor or another MCP client, follow https://api.trayo.ai/v2/docs/mcp.md. The MCP server is https://api.trayo.ai/v2/mcp and uses OAuth sign-in, not an API key.",
+    "Start a session with trayo_v2_get_workspace (MCP) or GET https://api.trayo.ai/v2/workspace (REST) to read the workspace settings: what it sells, its stakeholders, ideal customer profile and saved signals.",
     "Scripts and integrations authenticate with Authorization: Bearer <workspace API key>; MCP OAuth tokens do not work on the REST API.",
     "Apps built on Trayo use Trayo GTM UI as their default UI foundation; read https://ui.trayo.ai/llms.txt before writing UI code."
   ]

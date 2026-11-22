@@ -1,7 +1,7 @@
 {
   "name": "trayo",
-  "version": "0.6.16",
-  "description": "Build apps with Trayo GTM UI, find companies, lookalikes and people, research accounts and the people at them, look up contact details, define signals, run discovery, and read events with Trayo.",
+  "version": "1.0.0",
+  "description": "Find companies and people, build account lists from built-in lists, lookalikes or an ideal customer profile, research accounts, look up emails and phones, read LinkedIn posts, and run discoveries for buying signals with Trayo.",
   "keywords": ["trayo", "signals", "sales", "discovery", "accounts", "find", "people", "contacts", "research"],
   "interface": {
     "displayName": "Trayo",

@@ -13,9 +13,9 @@ When the key is missing, tell the user:
 
 > To connect your app or script to Trayo, create a workspace API key on the [API keys page](https://app.trayo.ai/user/api-keys) and configure it as `TRAYO_API_KEY` in your backend secret store or a local gitignored `.env` file. Let me know when it is configured. Do not paste the key into this conversation.
 
-An OAuth MCP connection does not provide a workspace API key. A successful `trayo_whoami` tool call confirms the MCP connection, not the app's REST authentication. An existing workspace API key used for MCP can be reused on the backend. MCP-only tasks do not need this API key prompt.
+An OAuth MCP connection does not provide a workspace API key. A successful `trayo_v2_get_workspace` tool call confirms the MCP connection, not the app's REST authentication. An existing workspace API key used for MCP can be reused on the backend. MCP-only tasks do not need this API key prompt.
 
-While the user configures the key, continue work that does not need credentials. Keep live REST calls pending; clearly label any mock data and report the missing key if the user has not configured it by handoff. Once configured, call `GET https://api.trayo.ai/v1/whoami` from the backend or script with `Authorization: Bearer <workspace API key>` to confirm the key works for the intended workspace. Never display the key or authentication header in output.
+While the user configures the key, continue work that does not need credentials. Keep live REST calls pending; clearly label any mock data and report the missing key if the user has not configured it by handoff. Give the key the scopes of the routes the app calls; [Get started](https://api.trayo.ai/v2/docs/getting-started.md) lists them. Once configured, call `GET https://api.trayo.ai/v2/workspace` from the backend or script with `Authorization: Bearer <workspace API key>` to confirm the key works for the intended workspace. Never display the key or authentication header in output.
 
 For a script or integration without a UI, continue with **Connect the workflow** below. For an app interface, follow the UI setup next.
 
@@ -47,7 +47,7 @@ Honor an explicit request for a different stack or design system. When extending
 
 ## Connect the workflow
 
-Read the public [API summary](https://api.trayo.ai/llms.txt), [OpenAPI reference](https://api.trayo.ai/v1/openapi.json), and [REST recipes](https://api.trayo.ai/v1/recipes). Choose the recipe that matches the requested workflow, such as `exact-prospecting` for an account search or `discover-account-events` for account discovery and event reads. Use documented routes, fields, pagination, and error handling; do not infer API contracts from UI component props.
+Read the public [API summary](https://api.trayo.ai/v2/llms.txt), [OpenAPI reference](https://api.trayo.ai/v2/openapi.json), and [REST recipes](https://api.trayo.ai/v2/recipes). Choose the recipe that matches the requested workflow, such as `icp-account-list` for an account search, `buying-signals` for a discovery and its results, or `monitor-accounts` for a scheduled job. The [apps guide](https://api.trayo.ai/v2/docs/apps.md) covers refused requests, large lists and discoveries across scheduled runs. Use documented routes, fields, pagination, and error handling; do not infer API contracts from UI component props.
 
 The kit does not provide a Trayo API client or authentication. Keep the workspace API key in backend secrets and call Trayo from the app's server or the script. Never put it in browser code, browser storage, or a public build-time variable.
 

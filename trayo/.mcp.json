@@ -2,7 +2,7 @@
   "mcpServers": {
     "trayo": {
       "type": "http",
-      "url": "https://api.trayo.ai/v1/mcp",
+      "url": "https://api.trayo.ai/v2/mcp",
       "alwaysLoad": true,
       "timeout": 120000
     }
