@@ -57,7 +57,7 @@ function validateCursorPlugin(root, claudeEntry, claudePlugin) {
 
   const server = mcp?.mcpServers?.trayo;
   invariant(
-    server?.url === 'https://api.trayo.ai/v1/mcp' && Object.keys(mcp.mcpServers).length === 1,
+    server?.url === 'https://api.trayo.ai/v2/mcp' && Object.keys(mcp.mcpServers).length === 1,
     'Cursor mcp.json must declare only the Trayo server at the public production endpoint.',
   );
   invariant(
@@ -143,7 +143,7 @@ function validateGeminiExtension(root, claudePlugin) {
   const servers = manifest.mcpServers ?? {};
   const server = servers.trayo;
   invariant(
-    server?.httpUrl === 'https://api.trayo.ai/v1/mcp' && Object.keys(servers).length === 1,
+    server?.httpUrl === 'https://api.trayo.ai/v2/mcp' && Object.keys(servers).length === 1,
     'Gemini extension must declare only the Trayo server at the public production endpoint.',
   );
   invariant(
@@ -223,7 +223,7 @@ export function validatePlugin(root = process.cwd()) {
     'Plugin repository must point to the public Trayo plugin repository.',
   );
   invariant(
-    mcp?.mcpServers?.trayo?.url === 'https://api.trayo.ai/v1/mcp',
+    mcp?.mcpServers?.trayo?.url === 'https://api.trayo.ai/v2/mcp',
     'Trayo MCP server must use the public production endpoint.',
   );
   invariant(
