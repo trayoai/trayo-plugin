@@ -1,6 +1,6 @@
 ---
 name: research-accounts
-description: Research a few companies or people with Trayo and get an overview written for what the user sells. Use for account research, person research or meeting prep before outreach.
+description: "Research a few companies or people with Trayo and get an overview written for what the user sells. Use for account research, person research or meeting prep before outreach."
 ---
 
 # Get an overview of companies and people before outreach

@@ -1,6 +1,6 @@
 ---
 name: people-at-accounts
-description: Find people with given titles at the user's target companies, then qualify them against a plain-language rule, with Trayo. Use when the user knows the titles they want at their accounts.
+description: "Find people with given titles at the user's target companies, then qualify them against a plain-language rule, with Trayo. Use when the user knows the titles they want at their accounts."
 ---
 
 # Find the right people at your companies, then qualify them

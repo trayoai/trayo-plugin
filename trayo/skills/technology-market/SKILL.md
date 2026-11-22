@@ -1,6 +1,6 @@
 ---
 name: technology-market
-description: Find companies across the market that use a technology, such as a competitor's product or a tool the user replaces, with a Trayo market discovery. Use for competitor takeouts or technology-based prospecting beyond named accounts.
+description: "Find companies across the market that use a technology, such as a competitor's product or a tool the user replaces, with a Trayo market discovery. Use for competitor takeouts or technology-based prospecting beyond named accounts."
 ---
 
 # Find new accounts that use a technology

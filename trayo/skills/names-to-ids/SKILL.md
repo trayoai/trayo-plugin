@@ -1,6 +1,6 @@
 ---
 name: names-to-ids
-description: Match a spreadsheet or list of company names, domains or LinkedIn pages to exact Trayo company ids, and settle ambiguous names. Use when the user has rows of companies to match before a search, discovery or list.
+description: "Match a spreadsheet or list of company names, domains or LinkedIn pages to exact Trayo company ids, and settle ambiguous names. Use when the user has rows of companies to match before a search, discovery or list."
 ---
 
 # Turn a spreadsheet of companies into Trayo ids

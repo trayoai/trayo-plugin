@@ -1,6 +1,6 @@
 ---
 name: builtin-company-lists
-description: Start from a built-in Trayo company list: S&P 500, Fortune 500, Fortune 1000, Inc. 5000, active Y Combinator companies or Cloud 100. Use when the user names one of these lists, or wants accounts from one narrowed to their market.
+description: "Start from a built-in Trayo company list: S&P 500, Fortune 500, Fortune 1000, Inc. 5000, active Y Combinator companies or Cloud 100. Use when the user names one of these lists, or wants accounts from one narrowed to their market."
 ---
 
 # Use a built-in company list

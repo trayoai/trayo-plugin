@@ -1,6 +1,6 @@
 ---
 name: track-champions
-description: Find out when champions, past buyers or users move to a new company with a Trayo people discovery. Use when the user wants job-change alerts for people they know.
+description: "Find out when champions, past buyers or users move to a new company with a Trayo people discovery. Use when the user wants job-change alerts for people they know."
 ---
 
 # Find out when your champions move to a new company

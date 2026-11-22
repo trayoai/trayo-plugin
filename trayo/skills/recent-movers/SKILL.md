@@ -1,6 +1,6 @@
 ---
 name: recent-movers
-description: Find people who recently started a new role, such as a new head of sales, after working at a company that matters to the user, such as a customer or a competitor, with Trayo. Use when the user wants new hires who came from specific companies.
+description: "Find people who recently started a new role, such as a new head of sales, after working at a company that matters to the user, such as a customer or a competitor, with Trayo. Use when the user wants new hires who came from specific companies."
 ---
 
 # Find people who started a new role after working somewhere that matters

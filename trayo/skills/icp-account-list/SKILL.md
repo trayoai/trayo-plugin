@@ -1,6 +1,6 @@
 ---
 name: icp-account-list
-description: Build a target account list from an ideal customer profile (industry, size, location) with Trayo search, then add similar companies. Use when the user describes the companies they sell to and wants a list to work from.
+description: "Build a target account list from an ideal customer profile (industry, size, location) with Trayo search, then add similar companies. Use when the user describes the companies they sell to and wants a list to work from."
 ---
 
 # Build a company list from an ICP, then add similar companies

@@ -1,6 +1,6 @@
 ---
 name: buying-signals
-description: Check named companies for buying signals with a Trayo discovery: funding, hiring, LinkedIn posts, technology adoption and new leaders. Use when the user has target accounts and wants to know which show intent or what happened at them recently.
+description: "Check named companies for buying signals with a Trayo discovery: funding, hiring, LinkedIn posts, technology adoption and new leaders. Use when the user has target accounts and wants to know which show intent or what happened at them recently."
 ---
 
 # Find buying signals at your companies

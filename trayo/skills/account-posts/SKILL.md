@@ -1,6 +1,6 @@
 ---
 name: account-posts
-description: Read what people at the user's companies, or people they name, post on LinkedIn about a topic, with Trayo post search. Use for raw post evidence by author, company or topic.
+description: "Read what people at the user's companies, or people they name, post on LinkedIn about a topic, with Trayo post search. Use for raw post evidence by author, company or topic."
 ---
 
 # Read what people at your companies post on LinkedIn

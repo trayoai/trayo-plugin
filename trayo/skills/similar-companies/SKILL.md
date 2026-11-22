@@ -1,6 +1,6 @@
 ---
 name: similar-companies
-description: Find lookalike companies similar to the user's best customers with Trayo. Use when the user names customers or example companies and wants more like them.
+description: "Find lookalike companies similar to the user's best customers with Trayo. Use when the user names customers or example companies and wants more like them."
 ---
 
 # Find companies similar to your best customers

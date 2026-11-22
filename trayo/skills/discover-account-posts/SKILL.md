@@ -1,6 +1,6 @@
 ---
 name: discover-account-posts
-description: Find LinkedIn posts at named companies that match buying signals, checked by a Trayo discovery. Use when the user wants qualified post-based intent at their accounts rather than a raw post search.
+description: "Find LinkedIn posts at named companies that match buying signals, checked by a Trayo discovery. Use when the user wants qualified post-based intent at their accounts rather than a raw post search."
 ---
 
 # Find posts that match signals at your accounts

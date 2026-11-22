@@ -1,6 +1,6 @@
 ---
 name: contacts-at-accounts
-description: Get work emails and phone numbers for the right people at target companies with Trayo. Use when the user wants to reach the people who matter at their accounts. Lookups use credits.
+description: "Get work emails and phone numbers for the right people at target companies with Trayo. Use when the user wants to reach the people who matter at their accounts. Lookups use credits."
 ---
 
 # Get emails and phones for the right people at your companies

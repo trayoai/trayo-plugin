@@ -1,6 +1,6 @@
 ---
 name: monitor-accounts
-description: Watch the same companies for new buying signals on a schedule with Trayo, and act only on events not seen before. Use when the user wants recurring account monitoring, a daily or weekly check, or an app or job that acts on new events.
+description: "Watch the same companies for new buying signals on a schedule with Trayo, and act only on events not seen before. Use when the user wants recurring account monitoring, a daily or weekly check, or an app or job that acts on new events."
 ---
 
 # Watch your companies for new signals on a schedule

@@ -1,6 +1,6 @@
 ---
 name: qualify-inbound
-description: Qualify inbound companies and people (sign-ups, leads or a spreadsheet) against the user's rules with Trayo. Use when the user wants to know which leads fit their ideal customer profile or criteria.
+description: "Qualify inbound companies and people (sign-ups, leads or a spreadsheet) against the user's rules with Trayo. Use when the user wants to know which leads fit their ideal customer profile or criteria."
 ---
 
 # Qualify inbound companies and people against your rules

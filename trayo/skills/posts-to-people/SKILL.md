@@ -1,6 +1,6 @@
 ---
 name: posts-to-people
-description: Find the people who wrote LinkedIn posts, from post URLs or from a topic, with Trayo. Use when the user pastes post links or wants the authors who write about something.
+description: "Find the people who wrote LinkedIn posts, from post URLs or from a topic, with Trayo. Use when the user pastes post links or wants the authors who write about something."
 ---
 
 # Find the people behind LinkedIn posts, from their URLs or their words

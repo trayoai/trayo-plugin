@@ -1,6 +1,6 @@
 ---
 name: buying-committee
-description: Map the buying committee at a few companies with Trayo when the user can describe the people in a sentence but not as exact titles. Use for stakeholder mapping: who owns, buys or influences the purchase.
+description: "Map the buying committee at a few companies with Trayo when the user can describe the people in a sentence but not as exact titles. Use for stakeholder mapping: who owns, buys or influences the purchase."
 ---
 
 # Map the buying committee at a few companies

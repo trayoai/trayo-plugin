@@ -1,6 +1,6 @@
 ---
 name: list-then-discover
-description: Build a company list with Trayo search, then run a discovery on it for buying signals. Use when the user can describe the companies they want but cannot name them, and wants to know which are in market.
+description: "Build a company list with Trayo search, then run a discovery on it for buying signals. Use when the user can describe the companies they want but cannot name them, and wants to know which are in market."
 ---
 
 # Build a list with search, then watch it for signals
